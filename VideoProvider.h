@@ -185,7 +185,7 @@ public:
 
     void seek(int64_t target_time){
 
-        qDebug() << "video seek: " << target_time << "1439,94";
+        qDebug() << "video seek:  " << target_time/100 << "s ; " << "total time: " << get_total_time()/100 << 's';
 
         AVPacket *pack;
 
@@ -219,6 +219,7 @@ public:
     }
 
     int64_t get_total_time(){
+        // 返回的数量单位为 秒*100
         if (fmt_ctx->duration==AV_NOPTS_VALUE)
             return 0;
 
@@ -546,7 +547,7 @@ class VideoProvider : public QObject
     Q_OBJECT
     QML_ELEMENT
     Q_PROPERTY(QVideoSink* videoSink READ videoSink WRITE setVideoSink NOTIFY videoSinkChanged)
-    Q_PROPERTY(QString videoPath READ videoPath WRITE setVideoPath)
+    Q_PROPERTY(QString videoPath READ videoPath WRITE setVideoPath NOTIFY videoPathChanged)
     Q_PROPERTY(bool videoPlaying READ videoPlaying)
 
 public:
@@ -573,13 +574,11 @@ public:
     void setVideoPath(QString p){
         if (m_videoPath!=p){
             m_videoPath=p;
+            emit videoPathChanged();
         }
     }
 
-    Q_INVOKABLE void start(){
-        qDebug() << "enter func \"start()\"\n"
-                 << "m_videoPath=" << m_videoPath << "\n"
-                 << "ffmpeg_frame==nullptr = " << (ffmpeg_frame==nullptr) << "\n";
+    Q_INVOKABLE bool init_video(){
         if (m_videoPath!=nullptr && ffmpeg_frame==nullptr)
         {
             qDebug() << "new Ffmpeg_frame(\"" << m_videoPath << "\")";
@@ -593,8 +592,16 @@ public:
             wave->start();
             m_audio_sink->start(wave);
             m_audio_sink->suspend();
-
+            return true;
         }
+        return false;
+    }
+
+    Q_INVOKABLE void start(){
+        qDebug() << "enter func \"start()\"\n"
+                 << "m_videoPath=" << m_videoPath << "\n"
+                 << "ffmpeg_frame==nullptr = " << (ffmpeg_frame==nullptr) << "\n";
+
         if (ffmpeg_frame!=nullptr){
             qDebug() << "start timer";
             m_videoPlaying=true;
@@ -618,8 +625,25 @@ public:
         ffmpeg_frame->seek(target_time);
     }
 
+    Q_INVOKABLE void show_a_frame(){
+        // 移动进度条时显示第一帧
+        AVFrame *frn = ffmpeg_frame->get_a_frame_video();
+        generateFrame(frn);
+        av_frame_unref(frn);
+    }
+
+    Q_INVOKABLE void init_and_show(){
+        init_video();
+        // show_a_frame();
+        start();
+        QTimer::singleShot(40, this, [this]() {
+            this->stop();
+        });
+    }
+
 signals:
     void videoSinkChanged();
+    void videoPathChanged();
     void videoOKed();
 
 public slots:

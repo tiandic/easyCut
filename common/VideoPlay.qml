@@ -21,6 +21,13 @@ Item {
             id: videoProvider
             videoPath: video_path
             videoSink: videoOutput.videoSink
+            onVideoPathChanged : {
+                if (videoProvider.videoPath!=""){
+                    videoProvider.init_and_show();
+                    slider.to = videoProvider.get_total_time()/100;
+                }
+
+            }
         }
 
         VideoOutput {
@@ -36,7 +43,6 @@ Item {
             anchors.fill: parent
             onClicked: {
                 videoProvider.videoPlaying ? videoProvider.stop() : videoProvider.start()
-                slider.to = videoProvider.get_total_time()/100;
             }
         }
     }
@@ -64,12 +70,14 @@ Item {
             to: 0
 
             onValueChanged: {
+                // 更改播放进度
                 console.log(`slider new value: ${slider.value}`)
                 let tmp_play_status=videoProvider.videoPlaying
                 videoProvider.stop()
                 videoProvider.seek(slider.value*100)
                 if (tmp_play_status)
                     videoProvider.start()
+                videoProvider.show_a_frame()
             }
 
             handle: Rectangle {
