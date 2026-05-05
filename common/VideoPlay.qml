@@ -65,9 +65,11 @@ Item {
 
             onValueChanged: {
                 console.log(`slider new value: ${slider.value}`)
+                let tmp_play_status=videoProvider.videoPlaying
                 videoProvider.stop()
                 videoProvider.seek(slider.value*100)
-                videoProvider.start()
+                if (tmp_play_status)
+                    videoProvider.start()
             }
 
             handle: Rectangle {
