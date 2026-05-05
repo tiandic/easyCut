@@ -127,31 +127,39 @@ public:
         frame_audio = av_frame_alloc();
     }
 
-    void demux() {
-            AVPacket *pkt = av_packet_alloc();
+    AVPacket *demux() {
+        AVPacket *pkt = av_packet_alloc();
 
-            QMutexLocker locker(&queue_mutex);
-            if (av_read_frame(fmt_ctx, pkt) < 0)
-                return;
+        if (av_read_frame(fmt_ctx, pkt) < 0){
+            av_packet_free(&pkt);
+            return nullptr;
+        }
 
-            if (pkt->stream_index == video_stream_index) {
-                video_packets_queue.enqueue(pkt);
-            } else if (pkt->stream_index == audio_stream_index) {
-                audio_packets_queue.enqueue(pkt);
-            } else {
-                av_packet_free(&pkt);
-            }
+        QMutexLocker locker(&queue_mutex);
+        if (pkt->stream_index == video_stream_index)
+            video_packets_queue.enqueue(pkt);
+        else if (pkt->stream_index == audio_stream_index)
+            audio_packets_queue.enqueue(pkt);
+        else
+            av_packet_free(&pkt);
 
+        return pkt;
     }
 
     AVFrame *get_a_frame_video(){
+        AVPacket *pack;
         while (avcodec_receive_frame(codec_ctx_video,frame_video)!=0){
             while (video_packets_queue.isEmpty())
                 demux();
 
-            AVPacket *pack=video_packets_queue.dequeue();
+            pack=video_packets_queue.dequeue();
+
+            if (pack->data == NULL || pack->size <= 0) {
+                qDebug() << "apck error in pts: " << pack->pts;
+            }
+
             avcodec_send_packet(codec_ctx_video,pack);
-           av_packet_free(&pack);
+            av_packet_free(&pack);
         }
 
         // dumpAVFrame(frame_video);
@@ -160,37 +168,64 @@ public:
     }
 
     AVFrame *get_a_frame_audio(){
+        AVPacket *pack;
         while (avcodec_receive_frame(codec_ctx_audio,frame_audio)!=0){
 
             while (audio_packets_queue.isEmpty())
                 demux();
 
-            AVPacket *pack=audio_packets_queue.dequeue();
+            pack=audio_packets_queue.dequeue();
             avcodec_send_packet(codec_ctx_audio,pack);
+
             av_packet_free(&pack);
         }
 
         return frame_audio;
     }
 
-    AVFrame *seek_and_get_a_frame(double target_time){
-        AVRational avbase_time=fmt_ctx->streams[video_stream_index]->time_base;
-        int64_t ts = av_rescale_q(target_time*AV_TIME_BASE,AV_TIME_BASE_Q,avbase_time);
+    void seek(int64_t target_time){
 
-        av_seek_frame(fmt_ctx,video_stream_index,ts,AVSEEK_FLAG_BACKWARD);
+        qDebug() << "video seek: " << target_time << "1439,94";
+
+        AVPacket *pack;
+
+        while (!video_packets_queue.isEmpty()){
+            pack=video_packets_queue.dequeue();
+            av_packet_free(&pack);
+        }
+
+        int64_t ts = av_rescale_q(target_time,(AVRational){1,100},AV_TIME_BASE_Q);
+        avformat_seek_file(fmt_ctx,-1,INT64_MIN,ts,ts,0);
 
         avcodec_flush_buffers(codec_ctx_video);
-        double pts_sec=0;
-        AVFrame *frn;
+        avcodec_flush_buffers(codec_ctx_audio);
 
-        // 确保seek后,能读取到指定时间的那一帧
-       while(pts_sec<target_time && (frn=get_a_frame_video())!=nullptr)
-            pts_sec=frn->pts*av_q2d(avbase_time);
+        double frame_interval=1/fps;
+        double avbase_time=av_q2d(fmt_ctx->streams[video_stream_index]->time_base);
+        AVFrame *fr;
 
-        return frn;
+        while ((fr=get_a_frame_video())!=nullptr){
+            if (((fr->pts*avbase_time+frame_interval)*100)>target_time)
+                break;
+            av_frame_unref(fr);
+        }
+        av_frame_unref(fr);
+
+        while (!audio_packets_queue.isEmpty()){
+            pack=audio_packets_queue.dequeue();
+            av_packet_free(&pack);
+        }
+
     }
 
-    QImage getQImageFromFrame(const AVFrame* pFrame) const
+    int64_t get_total_time(){
+        if (fmt_ctx->duration==AV_NOPTS_VALUE)
+            return 0;
+
+        return av_rescale_q(fmt_ctx->duration,AV_TIME_BASE_Q,(AVRational){1,100});
+    }
+
+    QImage cvtQImageFromFrame(const AVFrame* pFrame) const
     {
         // first convert the input AVFrame to the desired format
 
@@ -390,7 +425,7 @@ public:
 
 protected:
     qint64 readData(char *data, qint64 maxlen) override {
-        qDebug() << "Requesting " << maxlen << " bytes.";
+        // qDebug() << "Requesting " << maxlen << " bytes.";
         qint64 total=0;
         qint64 remain;
         qint64 need;
@@ -516,15 +551,12 @@ class VideoProvider : public QObject
 
 public:
     explicit VideoProvider(QObject* parent = nullptr)
-        : QObject(parent), m_timer(new QTimer(this))
+        : QObject(parent)
     {
-        m_timer->setInterval(33);
-        // connect(m_timer, &QTimer::timeout, this, &VideoProvider::generateFrame);
     }
 
     ~VideoProvider(){
         delete ffmpeg_frame;
-        delete m_timer;
     }
 
     QVideoSink* videoSink() const { return m_sink; }
@@ -566,7 +598,6 @@ public:
         if (ffmpeg_frame!=nullptr){
             qDebug() << "start timer";
             m_videoPlaying=true;
-            m_timer->start();
             m_audio_sink->resume();
             show_video();
         }
@@ -575,16 +606,26 @@ public:
     Q_INVOKABLE void stop(){
         qDebug() << "enter func stop()";
         m_videoPlaying=false;
+        QMutexLocker locker(&video_play_mutex);     // 确保视频暂停完成
         m_audio_sink->suspend();
-        m_timer->stop();
+    }
+
+    Q_INVOKABLE int64_t get_total_time(){
+        return ffmpeg_frame->get_total_time();
+    }
+
+    Q_INVOKABLE void seek(int64_t target_time){
+        ffmpeg_frame->seek(target_time);
     }
 
 signals:
     void videoSinkChanged();
+    void videoOKed();
 
 public slots:
     void show_video_thread()
     {
+        QMutexLocker locker(&video_play_mutex);
         AVFrame *frn = ffmpeg_frame->get_a_frame_video();
         qint64 video_pts = av_rescale_q(frn->best_effort_timestamp,ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->video_stream_index]->time_base,ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->audio_stream_index]->time_base);
 
@@ -607,10 +648,11 @@ private:
     QPointer<QAudioSink> m_audio_sink;
     AudioWave *wave;
     QString m_videoPath=nullptr;
-    QTimer* m_timer;
     bool m_videoPlaying=false;
     Ffmpeg_frame *ffmpeg_frame=nullptr;
     qint64 audio_pts;
+    QMutex video_play_mutex;
+
 
     void show_video(){
         QThread* thread = QThread::create([this]() {
@@ -642,9 +684,9 @@ private:
         int plane = 0;
         QImage image(video_frame.bits(plane), video_frame.width(),video_frame.height(), image_format);
         // QImage img=queue_images.dequeue();
-        QImage img=ffmpeg_frame->getQImageFromFrame(frn);
+        QImage img=ffmpeg_frame->cvtQImageFromFrame(frn);
         // emit images_dequeueed();
-        // QString filePath="/home/adminmaster/Downloads/Shiroko.jpeg";
+
         // bool loaded = img.load(filePath);
 
         // if (!loaded) {
