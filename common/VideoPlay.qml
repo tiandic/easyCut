@@ -6,6 +6,7 @@ Item {
 
     property string video_path: ""
     onVideo_pathChanged: videoProvider.videoPath = video_path
+    property var last_ms: Date.now()
 
     Item {
         id: screen
@@ -23,6 +24,7 @@ Item {
             videoSink: videoOutput.videoSink
             onVideoPathChanged : {
                 if (videoProvider.videoPath!=""){
+                    console.log("init video")
                     videoProvider.init_and_show();
                     slider.to = videoProvider.get_total_time()/100;
                 }
@@ -47,10 +49,9 @@ Item {
         }
     }
 
+    // 进度条与暂停键等
     Item {
         id: control
-        // 进度条与暂停键等
-
         anchors {
             // 位于画面下面,并有一定间隔
             bottom: parent.bottom
@@ -60,7 +61,7 @@ Item {
             // topMargin: 30
         }
 
-        height: parent.height / 6
+        height: parent.height / 8
         Slider {
             id: slider
             anchors {
@@ -70,6 +71,13 @@ Item {
             to: 0
 
             onValueChanged: {
+                // 避免拖动进度条时卡死
+                if (Date.now() - last_ms < 500)
+                {
+                    last_ms = Date.now();
+                    return;
+                }
+
                 // 更改播放进度
                 console.log(`slider new value: ${slider.value}`)
                 let tmp_play_status=videoProvider.videoPlaying
@@ -77,11 +85,12 @@ Item {
                 videoProvider.seek(slider.value*100)
                 if (tmp_play_status)
                     videoProvider.start()
-                videoProvider.show_a_frame()
+                else
+                    videoProvider.show_a_frame()
             }
 
             handle: Rectangle {
-                x: parent.visualPosition * parent.width - width / 2 + parent.leftPadding
+                x: slider.visualPosition * slider.width// - width / 2 + slider.leftPadding
                 // y: (parent.height - height) / 2 + parent.topPadding
 
                 width: 14

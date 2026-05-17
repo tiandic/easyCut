@@ -10,6 +10,7 @@
 #include <QtMultimedia/QAudioSink>
 
 #include <stdint.h>
+#include <limits>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -149,8 +150,10 @@ public:
     AVFrame *get_a_frame_video(){
         AVPacket *pack;
         while (avcodec_receive_frame(codec_ctx_video,frame_video)!=0){
-            while (video_packets_queue.isEmpty())
-                demux();
+            while (video_packets_queue.isEmpty()){
+                if (demux()==nullptr)
+                    return nullptr;
+            }
 
             pack=video_packets_queue.dequeue();
 
@@ -171,8 +174,10 @@ public:
         AVPacket *pack;
         while (avcodec_receive_frame(codec_ctx_audio,frame_audio)!=0){
 
-            while (audio_packets_queue.isEmpty())
-                demux();
+            while (audio_packets_queue.isEmpty()){
+                if (demux()==nullptr)
+                    return nullptr;
+            }
 
             pack=audio_packets_queue.dequeue();
             avcodec_send_packet(codec_ctx_audio,pack);
@@ -187,6 +192,8 @@ public:
 
         qDebug() << "video seek:  " << target_time/100 << "s ; " << "total time: " << get_total_time()/100 << 's';
 
+        bool is_tail= target_time/100 == get_total_time()/100;
+        qDebug() << "is tail: " << is_tail;
         AVPacket *pack;
 
         while (!video_packets_queue.isEmpty()){
@@ -204,12 +211,17 @@ public:
         double avbase_time=av_q2d(fmt_ctx->streams[video_stream_index]->time_base);
         AVFrame *fr;
 
+        int64_t now_frame_time=-1;
+
+
         while ((fr=get_a_frame_video())!=nullptr){
-            if (((fr->pts*avbase_time+frame_interval)*100)>target_time)
+            int64_t now_frame_time=(fr->pts*avbase_time+frame_interval)*100;
+            if (now_frame_time>=target_time)
                 break;
             av_frame_unref(fr);
         }
-        av_frame_unref(fr);
+        if (fr!=nullptr)
+            av_frame_unref(fr);
 
         while (!audio_packets_queue.isEmpty()){
             pack=audio_packets_queue.dequeue();
@@ -499,7 +511,12 @@ private:
 
     int get_ffmpeg_audio_data(){
         AVFrame *frame = m_ff->get_a_frame_audio();
-        *m_audio_pts=frame->best_effort_timestamp;
+        if (frame!=nullptr)
+            *m_audio_pts=frame->best_effort_timestamp;
+        else{
+            *m_audio_pts=std::numeric_limits<qint64>::max();
+            return 0;
+        }
 
         int out_samples = av_rescale_rnd(
             swr_get_delay(swrCtx, frame->sample_rate) + frame->nb_samples,
@@ -551,6 +568,8 @@ class VideoProvider : public QObject
     Q_PROPERTY(bool videoPlaying READ videoPlaying)
 
 public:
+    AVRational video_steam_base_time;
+    AVRational audio_steam_base_time;
     explicit VideoProvider(QObject* parent = nullptr)
         : QObject(parent)
     {
@@ -584,6 +603,9 @@ public:
             qDebug() << "new Ffmpeg_frame(\"" << m_videoPath << "\")";
             ffmpeg_frame = new Ffmpeg_frame(m_videoPath);
 
+            video_steam_base_time = ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->video_stream_index]->time_base;
+            audio_steam_base_time = ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->audio_stream_index]->time_base;
+
             QAudioFormat format;
             wave=new AudioWave(ffmpeg_frame,&audio_pts);
             wave->set_format(format);
@@ -603,7 +625,7 @@ public:
                  << "ffmpeg_frame==nullptr = " << (ffmpeg_frame==nullptr) << "\n";
 
         if (ffmpeg_frame!=nullptr){
-            qDebug() << "start timer";
+            qDebug() << "start video";
             m_videoPlaying=true;
             m_audio_sink->resume();
             show_video();
@@ -628,6 +650,8 @@ public:
     Q_INVOKABLE void show_a_frame(){
         // 移动进度条时显示第一帧
         AVFrame *frn = ffmpeg_frame->get_a_frame_video();
+        if (frn==nullptr)
+            return;
         generateFrame(frn);
         av_frame_unref(frn);
     }
@@ -651,19 +675,21 @@ public slots:
     {
         QMutexLocker locker(&video_play_mutex);
         AVFrame *frn = ffmpeg_frame->get_a_frame_video();
-        qint64 video_pts = av_rescale_q(frn->best_effort_timestamp,ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->video_stream_index]->time_base,ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->audio_stream_index]->time_base);
-
-        while (m_videoPlaying) {
+        if (frn==nullptr)
+            return;
+        qint64 video_pts = av_rescale_q(frn->best_effort_timestamp,video_steam_base_time,audio_steam_base_time);
+        int64_t total_time=get_total_time();
+        while (total_time>av_rescale_q(video_pts,audio_steam_base_time,{1,100}) && m_videoPlaying) {
             // qDebug() << "show frame pts: " << video_pts;
             // qDebug() << "show audio_pts: " << audio_pts;
-            if ( video_pts > audio_pts) {
+            if (video_pts > audio_pts) {
                 QThread::msleep(1);
                 continue;
             }
             generateFrame(frn);
             av_frame_unref(frn);
             frn = ffmpeg_frame->get_a_frame_video();
-            video_pts = av_rescale_q(frn->best_effort_timestamp,ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->video_stream_index]->time_base,ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->audio_stream_index]->time_base);
+            video_pts = av_rescale_q(frn->best_effort_timestamp,video_steam_base_time,audio_steam_base_time);
         }
     }
 
