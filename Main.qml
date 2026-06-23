@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import "page" as Page
 
 Window {
@@ -8,9 +9,18 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    Page.Welcome {
-        id: welcome_page
+    StackView {
+        id: stack
+        initialItem: welcome_page
         anchors.fill: parent
+    }
+
+    Component {
+        id: welcome_page
+    Page.Welcome {
+        anchors.fill: parent
+        stackView: stack
         }
+    }
 
 }

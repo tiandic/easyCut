@@ -12,6 +12,9 @@ Rectangle {
     // color: "#f0c8dc"
     scale: 1.0
 
+    implicitWidth: 220
+    implicitHeight: 80
+
     Text {
         anchors.centerIn: parent
         text: text_

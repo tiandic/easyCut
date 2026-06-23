@@ -6,6 +6,7 @@ import "../common" as Com
 
 Rectangle {
     id: welcome
+    property var stackView
 
     FileDialog {
         id: file_select
@@ -19,7 +20,8 @@ Rectangle {
             var comp=Qt.createComponent("Function.qml")
             if (comp.status==Component.Ready){
                 var obj = comp.createObject(welcome.parent,{
-                                      video_path: file_select.selectedFile
+                                      video_path: file_select.selectedFile,
+                                      "stackView": welcome.stackView
                                   })
                 if (obj==null)
                 {
@@ -27,9 +29,11 @@ Rectangle {
                     return
                 }
 
-                obj.anchors.fill = welcome.parent
-                welcome.visible=false
+                stackView.push(obj)
+
             }
+            else if (comp.status==Component.Error)
+                console.log(comp. errorString())
             console.log(file_select.selectedFile)
         }
     }

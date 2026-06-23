@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(easyCut VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(QT_QML_GENERATE_QMLLS_INI ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick)
 find_package(Qt6 REQUIRED COMPONENTS Multimedia)
@@ -32,6 +33,11 @@ qt_add_qml_module(appeasyCut
         QML_FILES common/Button.qml
         QML_FILES page/Function.qml
         QML_FILES common/VideoPlay.qml
+        QML_FILES common/InputText.qml
+        QML_FILES common/Myrect.qml
+        QML_FILES common/LabelInput.qml
+        QML_FILES common/LabelInput2.qml
+        QML_FILES function/Cropping.qml
         SOURCES VideoProvider.h
 )
 

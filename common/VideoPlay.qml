@@ -8,6 +8,8 @@ Item {
     onVideo_pathChanged: videoProvider.videoPath = video_path
     property var last_ms: Date.now()
 
+    property var videooutput: videoOutput
+
     Item {
         id: screen
 
@@ -35,6 +37,10 @@ Item {
         VideoOutput {
             id: videoOutput
             anchors.fill: parent
+            onContentRectChanged: {
+            console.log("视频画面位置:", contentRect.x, contentRect.y)
+            console.log("视频画面尺寸:", contentRect.width, contentRect.height)
+        }
         }
 
         AudioOutput {

@@ -343,7 +343,7 @@ private:
         qDebug() << "format:" << frame->format;
 
         // 关键帧
-        qDebug() << "key_frame:" << frame->key_frame;
+        // qDebug() << "key_frame:" << frame->key_frame;
         qDebug() << "pict_type:" << av_get_picture_type_char(frame->pict_type);
 
         // 行大小（stride）

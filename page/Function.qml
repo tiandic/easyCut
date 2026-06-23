@@ -1,14 +1,17 @@
 import QtQuick 2.15
 import "../common" as Com
+import "../function" as Funcs
 
 // 功能选择
 Item {
+    id: select_function
     property string video_path: ""
+    property var stackView
 
     // 功能列表
     ListModel {
          id: func_list_data
-         ListElement {name: "cropping"; text: qsTr("画面裁剪")}
+         ListElement {name: "Cropping"; text: qsTr("画面裁剪")}
     }
     ListView {
         id: listview
@@ -20,11 +23,31 @@ Item {
 
         model: func_list_data
 
+        function goto_function(n) {
+            var comp=Qt.createComponent("../function/" + n + ".qml")
+            if (comp.status==Component.Ready){
+                var obj = comp.createObject(null,{
+                    video_path: select_function.video_path,
+                    stackView: select_function.stackView
+                                  })
+                if (obj==null)
+                {
+                    console.log(n + " create failed!")
+                    return
+                }
+            stackView.push(obj)
+
+            }
+            else if (comp.status==Component.Error)
+                console.log(comp. errorString())
+        }
+ 
         delegate: Com.Button {
             id: button
             width: listview.width *5/6
             height: width/3
             text_: model.text
+            onClicked: listview.goto_function(model.name)
         }
 
         anchors {
