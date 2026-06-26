@@ -9,6 +9,22 @@ Item {
     property string video_path: ""
     property var stackView
 
+    function cvt_rect_to_input(num) {
+        // console.debug("video_width: ", videoPlay.video_width);
+        // console.debug("rect width: ", rect.width);
+        // console.debug();
+
+        return Math.round(num * videoPlay.video_width / rect.width);
+    }
+
+    function cvt_input_to_rect(num) {
+        // console.debug("video_width: ", videoPlay.video_width);
+        // console.debug("rect width: ", rect.width);
+        // console.debug();
+
+        return Math.round(num * rect.width / videoPlay.video_width);
+    }
+
     ColumnLayout {
         id: input
         // anchors.centerIn: parent
@@ -36,9 +52,13 @@ Item {
                 // text: rect.rect_X
 
                 onTextChanged: Qt.callLater(function () {
+                    if (!input_x.hasFocus)
+                        return;
+                    if (input_x.text == "")
+                        return;
                     console.debug("change rect x:", input_x.text);
                     if (parseInt(input_x.text) !== rect.rect_X)
-                        rect.rect_X = parseInt(input_x.text);
+                        rect.rect_X = cvt_input_to_rect(parseInt(input_x.text));
                 })
             }
             Com.LabelInput2 {
@@ -51,6 +71,10 @@ Item {
                 // text: rect.rect_Y
 
                 onTextChanged: Qt.callLater(function () {
+                    if (!input_y.hasFocus)
+                        return;
+                    if (input_y.text == "")
+                        return;
                     console.debug("change rect y:", input_y.text);
                     if (parseInt(input_y.text) !== rect.rect_Y)
                         rect.rect_Y = parseInt(input_y.text);
@@ -71,6 +95,10 @@ Item {
                 // text: rect.rect_X1 - rect.rect_X
 
                 onTextChanged: Qt.callLater(function () {
+                    if (!input_w.hasFocus)
+                        return;
+                    if (input_w.text == "")
+                        return;
                     console.debug("change rect width:", input_w.text);
                     if (parseInt(input_w.text) !== rect.rect_X1 - rect.rect_X)
                         rect.rect_X1 = rect.rect_X + parseInt(input_w.text);
@@ -86,6 +114,10 @@ Item {
                 // text: rect.rect_Y1 - rect.rect_Y
 
                 onTextChanged: Qt.callLater(function () {
+                    if (!input_h.hasFocus)
+                        return;
+                    if (input_w.text == "")
+                        return;
                     console.debug("change rect height:", input_h.text);
                     if (parseInt(input_h.text) !== rect.rect_Y1 - rect.rect_Y)
                         rect.rect_Y1 = rect.rect_Y + parseInt(input_h.text);
@@ -137,6 +169,10 @@ Item {
                 // input_y.text = rect_Y;
                 // input_w.text = rect_X1 - rect_X;
                 // input_h.text = rect_Y1 - rect_Y;
+                input_x.text = cvt_rect_to_input(rect.rect_X);
+                input_y.text = cvt_rect_to_input(rect.rect_Y);
+                input_w.text = cvt_rect_to_input(rect.rect_X1 - rect.rect_X);
+                input_h.text = cvt_rect_to_input(rect.rect_Y1 - rect.rect_Y);
             }
 
             Connections {
@@ -178,18 +214,19 @@ Item {
         running: true
 
         onTriggered: {
+
             // console.debug();
             // console.debug("input: ", input_x.text, input_y.text, input_w.text, input_h.text);
             // console.debug("rect: ", rect.rect_X, rect.rect_Y, rect.rect_X1 - rect.rect_X, rect.rect_Y1 - rect.rect_Y);
 
-            if (parseInt(input_x.text) != rect.rect_X)
-                input_x.text = rect.rect_X;
-            if (parseInt(input_y.text) != rect.rect_Y)
-                input_y.text = rect.rect_Y;
-            if (parseInt(input_w.text) != rect.rect_X1 - rect.rect_X)
-                input_w.text = rect.rect_X1 - rect.rect_X;
-            if (parseInt(input_h.text) != rect.rect_Y1 - rect.rect_Y)
-                input_h.text = rect.rect_Y1 - rect.rect_Y;
+            if (parseInt(input_x.text) != rect.rect_X && rect.mouse_pressed)
+                input_x.text = cvt_rect_to_input(rect.rect_X);
+            if (parseInt(input_y.text) != rect.rect_Y && rect.mouse_pressed)
+                input_y.text = cvt_rect_to_input(rect.rect_Y);
+            if (parseInt(input_w.text) != rect.rect_X1 - rect.rect_X && rect.mouse_pressed)
+                input_w.text = cvt_rect_to_input(rect.rect_X1 - rect.rect_X);
+            if (parseInt(input_h.text) != rect.rect_Y1 - rect.rect_Y && rect.mouse_pressed)
+                input_h.text = cvt_rect_to_input(rect.rect_Y1 - rect.rect_Y);
         }
     }
 

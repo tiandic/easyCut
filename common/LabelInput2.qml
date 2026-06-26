@@ -20,6 +20,8 @@ Item {
     implicitWidth: 320
     implicitHeight: row.implicitHeight
 
+    property bool hasFocus: field.activeFocus
+
     RowLayout {
         id: row
         spacing: 8

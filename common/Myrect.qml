@@ -13,25 +13,28 @@ Item {
     property int rectlinewidth: 5
     property var clr: null
 
-    onRect_XChanged:{
+    property bool mouse_enter: false
+    property bool mouse_pressed: false
+
+    onRect_XChanged: {
         if (rect_X + 10 > rect_X1)
             rect_X = rect_X1 - 10;
-        myrect_root.requestPaint()
+        myrect_root.requestPaint();
     }
-    onRect_YChanged:{
+    onRect_YChanged: {
         if (rect_Y + 10 > rect_Y1)
             rect_Y = rect_Y1 - 10;
-        myrect_root.requestPaint()
+        myrect_root.requestPaint();
     }
-    onRect_X1Changed:{
+    onRect_X1Changed: {
         if (rect_X + 10 > rect_X1)
-            rect_X1 = rect_X + 10
-        myrect_root.requestPaint()
+            rect_X1 = rect_X + 10;
+        myrect_root.requestPaint();
     }
     onRect_Y1Changed: {
         if (rect_Y + 10 > rect_Y1)
-            rect_Y1 = rect_Y + 10
-        myrect_root.requestPaint()
+            rect_Y1 = rect_Y + 10;
+        myrect_root.requestPaint();
     }
 
     Canvas {
@@ -76,6 +79,7 @@ Item {
             if (!pressed)
                 return;
             let devi = 4;
+            myrect.mouse_pressed = true;
 
             // 中间
             if ((!down && !down2 && !down3 && !down4) && ((down5) || (mouseX > rect_X && mouseX < rect_X1 && mouseY > rect_Y && mouseY < rect_Y1))) {
@@ -133,6 +137,11 @@ Item {
             y_eren = 0;
             x_eren2 = 0;
             y_eren2 = 0;
+
+            myrect.mouse_pressed = false;
         }
+
+        onEntered: myrect.mouse_enter = true
+        onExited: myrect.mouse_enter = false
     }
 }

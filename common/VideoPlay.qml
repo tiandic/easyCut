@@ -9,6 +9,8 @@ Item {
     property var last_ms: Date.now()
 
     property var videooutput: videoOutput
+    property int video_width: videoProvider.videoWidth
+    property int video_height: videoProvider.videoHeight
 
     Item {
         id: screen
@@ -24,13 +26,12 @@ Item {
             id: videoProvider
             videoPath: video_path
             videoSink: videoOutput.videoSink
-            onVideoPathChanged : {
-                if (videoProvider.videoPath!=""){
-                    console.log("init video")
+            onVideoPathChanged: {
+                if (videoProvider.videoPath != "") {
+                    console.log("init video");
                     videoProvider.init_and_show();
-                    slider.to = videoProvider.get_total_time()/100;
+                    slider.to = videoProvider.get_total_time() / 100;
                 }
-
             }
         }
 
@@ -38,9 +39,9 @@ Item {
             id: videoOutput
             anchors.fill: parent
             onContentRectChanged: {
-            console.log("视频画面位置:", contentRect.x, contentRect.y)
-            console.log("视频画面尺寸:", contentRect.width, contentRect.height)
-        }
+                console.log("视频画面位置:", contentRect.x, contentRect.y);
+                console.log("视频画面尺寸:", contentRect.width, contentRect.height);
+            }
         }
 
         AudioOutput {
@@ -50,7 +51,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                videoProvider.videoPlaying ? videoProvider.stop() : videoProvider.start()
+                videoProvider.videoPlaying ? videoProvider.stop() : videoProvider.start();
             }
         }
     }
@@ -78,21 +79,20 @@ Item {
 
             onValueChanged: {
                 // 避免拖动进度条时卡死
-                if (Date.now() - last_ms < 500)
-                {
+                if (Date.now() - last_ms < 500) {
                     last_ms = Date.now();
                     return;
                 }
 
                 // 更改播放进度
-                console.log(`slider new value: ${slider.value}`)
-                let tmp_play_status=videoProvider.videoPlaying
-                videoProvider.stop()
-                videoProvider.seek(slider.value*100)
+                console.log(`slider new value: ${slider.value}`);
+                let tmp_play_status = videoProvider.videoPlaying;
+                videoProvider.stop();
+                videoProvider.seek(slider.value * 100);
                 if (tmp_play_status)
-                    videoProvider.start()
+                    videoProvider.start();
                 else
-                    videoProvider.show_a_frame()
+                    videoProvider.show_a_frame();
             }
 
             handle: Rectangle {
