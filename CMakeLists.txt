@@ -38,7 +38,8 @@ qt_add_qml_module(appeasyCut
         QML_FILES common/LabelInput.qml
         QML_FILES common/LabelInput2.qml
         QML_FILES function/Cropping.qml
-        SOURCES VideoProvider.h
+        SOURCES VideoProvider.h Ffmpeg_cmd.h
+        SOURCES config.h
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -68,3 +69,5 @@ install(TARGETS appeasyCut
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+add_subdirectory(exec_cmd)

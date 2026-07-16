@@ -1,5 +1,6 @@
 // VideoProvider.h
 #pragma once
+#include "qlogging.h"
 #include <QImage>
 #include <QObject>
 #include <QPainter>
@@ -536,7 +537,10 @@ public:
   QString videoPath() const { return m_videoPath; }
   bool videoPlaying() const { return m_videoPlaying; }
   int videoWidth() const { return ffmpeg_frame->width; }
-  int videoHeight() const { return ffmpeg_frame->height; }
+  int videoHeight() const {
+    qDebug() << "get ffmpeg_frame->height = " << ffmpeg_frame->height;
+    return ffmpeg_frame->height;
+  }
 
   void setVideoSink(QVideoSink *sink) {
     if (m_sink != sink) {
