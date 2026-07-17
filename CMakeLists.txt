@@ -71,3 +71,4 @@ install(TARGETS appeasyCut
 )
 
 add_subdirectory(exec_cmd)
+add_subdirectory(exec_cmd_gui)

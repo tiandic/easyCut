@@ -1,5 +1,7 @@
 // VideoProvider.h
-#pragma once
+#ifndef VIDEOPROVIDER_H
+#define VIDEOPROVIDER_H
+
 #include "qlogging.h"
 #include <QImage>
 #include <QObject>
@@ -739,3 +741,4 @@ private:
     m_sink->setVideoFrame(video_frame);
   }
 };
+#endif // VIDEOPROVIDER_H

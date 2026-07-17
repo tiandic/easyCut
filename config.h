@@ -4,9 +4,9 @@
 #include "qcoreapplication.h"
 #include "qdir.h"
 #include "qfiledevice.h"
-class Config_file {
+class Config_file_ffmpeg_cmd {
 public:
-  Config_file(QString config_path = "") {
+  Config_file_ffmpeg_cmd(QString config_path = "") {
     if (config_path == "")
       file = new QFile(get_config_path());
     else

@@ -9,6 +9,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QObject>
+#include <QStandardPaths>
 #include <QtQml>
 
 #include "config.h"
@@ -28,10 +29,13 @@ public:
   Q_INVOKABLE void exec_ffmpeg() {
     QString exec_path = QDir(QCoreApplication::applicationDirPath())
                             .filePath("exec_cmd/exec_cmd");
-    QList<QString> argv = {config.get_config_path()};
-    QProcess::startDetached(exec_path, argv);
+    QString exec_gui_path = QDir(QCoreApplication::applicationDirPath())
+                                .filePath("exec_cmd_gui/appexec_cmd_gui");
+    QList<QString> argv = {exec_path, config.get_config_path()};
+
+    QProcess::startDetached(exec_gui_path, argv);
   }
 
 private:
-  Config_file config;
+  Config_file_ffmpeg_cmd config;
 };
