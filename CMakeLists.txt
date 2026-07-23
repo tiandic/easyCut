@@ -40,6 +40,8 @@ qt_add_qml_module(appeasyCut
         QML_FILES function/Cropping.qml
         SOURCES VideoProvider.h Ffmpeg_cmd.h
         SOURCES config.h
+        QML_FILES function/TimeCrop.qml
+        QML_FILES common/SavePathSelect.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

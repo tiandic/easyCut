@@ -139,7 +139,7 @@ Item {
             Layout.fillWidth: true
             text_: qsTr("确认")
             onClicked: {
-                save_path_select.open();
+                save_path_select.dialog.open();
             }
         }
         Item {
@@ -238,27 +238,13 @@ Item {
         return str;
     }
 
-    FileDialog {
+    Com.SavePathSelect {
         id: save_path_select
-        title: qsTr("选择保存位置")
-        fileMode: FileDialog.SaveFile
-        currentFile: {
-            let ext = get_extension(VideoPlay.video_path);
-            if (ext !== '')
-                return "out." + ext;
-            return "out.mp4";
-        }
-        currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
-        nameFilters: [qsTr("视频文件 (*.mp4 *.m4v *.mkv *.avi *.mov *.qt *.flv *.webm *.mpg *.mpeg *.m2v *.m1v *.mpv *.ts *.mts *.m2ts *.vob *.ogv *.3gp *.3g2 *.str *.4xm *.a64 *.amv *.dv *.yuv *.h264 *.264 *.hevc *.h265 *.vp8 *.vp9 *.prores *.mxf *.cineform *.huff *.ffv1 *.snow *.vp6 *.ogv)"), qsTr("所有文件 (*)")]
-
-        onAccepted: {
+        input_video_path: videoPlay.video_path
+        onSelected: {
             let file_path = remove_pre(videoPlay.video_path, "file://");
-            let save_path = remove_pre(save_path_select.selectedFile.toString(), "file://");
-            if (save_path.indexOf('.') === -1)
-                save_path = save_path + '.' + get_extension(file_path);
-            console.debug(get_extension(VideoPlay.video_path));
             let crop_str = `${input_w.text}:${input_h.text}:${input_x.text}:${input_y.text}`;
-            cmd.push_ffmpeg_cmd(`ffmpeg -i ${file_path} -vf "crop=${crop_str}" ${save_path}`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -i ${in_path} -vf "crop=${crop_str}" ${out_path}`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
