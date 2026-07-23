@@ -4,6 +4,8 @@
 #include "qcoreapplication.h"
 #include "qdir.h"
 #include "qfiledevice.h"
+#include "qhashfunctions.h"
+#include "qstandardpaths.h"
 class Config_file_ffmpeg_cmd {
 public:
   Config_file_ffmpeg_cmd(QString config_path = "") {
@@ -50,7 +52,12 @@ private:
   QList<QString> command_list;
   QFile *file;
 
-  QString get_config_dir() { return QCoreApplication::applicationDirPath(); }
+  QString get_config_dir() {
+    QString dir =
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(dir);
+    return dir;
+  }
 };
 
 #endif // CONFIG_H

@@ -64,11 +64,17 @@ target_link_libraries(appeasyCut
     PkgConfig::FFMPEG
 )
 
+add_subdirectory(exec_cmd)
+add_subdirectory(exec_cmd_gui)
+
 install(TARGETS appeasyCut
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-
-add_subdirectory(exec_cmd)
-add_subdirectory(exec_cmd_gui)
+install(TARGETS exec_cmd
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/easyCut
+)
+install(TARGETS appexec_cmd_gui
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/easyCut
+)

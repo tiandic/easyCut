@@ -38,9 +38,3 @@ set_target_properties(appexec_cmd_gui PROPERTIES
 target_link_libraries(appexec_cmd_gui
     PRIVATE Qt6::Quick
 )
-
-install(TARGETS appexec_cmd_gui
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)

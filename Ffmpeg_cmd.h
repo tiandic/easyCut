@@ -52,9 +52,17 @@ private:
   QString find_exists_from_paths(QList<QString> paths) {
     QString path;
     for (QString n : paths) {
+      // 构建后
       path = QDir(QCoreApplication::applicationDirPath()).filePath(n);
       QFileInfo file(path);
       if (file.exists() && file.isFile())
+        return path;
+
+      // 安装后
+      path = QDir(QCoreApplication::applicationDirPath())
+                 .filePath("../lib/easyCut/" + n);
+      QFileInfo file2(path);
+      if (file2.exists() && file2.isFile())
         return path;
     }
 
