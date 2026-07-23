@@ -45,9 +45,9 @@ private:
   Config_file_ffmpeg_cmd config;
   QList<QString> exec_paths = {"exec_cmd", "exec_cmd.exe", "exec_cmd/exec_cmd",
                                "exec_cmd/exec_cmd.exe"};
-  QList<QString> exec_gui_paths = {"exec_cmd_gui", "exec_cmd_gui.exe",
-                                   "exec_cmd/exec_cmd_gui",
-                                   "exec_cmd/exec_cmd_gui.exe"};
+  QList<QString> exec_gui_paths = {"appexec_cmd_gui", "appexec_cmd_gui.exe",
+                                   "exec_cmd_gui/appexec_cmd_gui",
+                                   "exec_cmd_gui/appexec_cmd_gui.exe"};
 
   QString find_exists_from_paths(QList<QString> paths) {
     QString path;
