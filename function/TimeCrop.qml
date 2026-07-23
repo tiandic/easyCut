@@ -16,6 +16,10 @@ Item {
         width: 320
         spacing: 5
 
+        Item {
+            Layout.preferredHeight: 20
+        }
+
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
