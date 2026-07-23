@@ -1,6 +1,7 @@
 #ifndef EXEC_RUNNER_H
 #define EXEC_RUNNER_H
 
+#include "qcoreapplication.h"
 #include <QObject>
 #include <QProcess>
 #include <QtCore>
@@ -17,6 +18,12 @@ public:
             [this] { append_output(process.readAllStandardOutput()); });
     connect(&process, &QProcess::readyReadStandardError, this,
             [this] { append_output(process.readAllStandardError()); });
+    connect(&process,
+            QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
+            [](int exit_code) {
+              if (exit_code == 0)
+                qApp->quit();
+            });
   }
 
   Q_INVOKABLE void run(QString exec_path, QList<QString> argv) {
