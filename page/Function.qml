@@ -25,6 +25,7 @@ Item {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: parent.left
+        spacing: 10
 
         width: parent.width / 5
 
