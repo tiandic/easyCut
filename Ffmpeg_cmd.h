@@ -3,6 +3,7 @@
 #include "qcoreapplication.h"
 #include "qdebug.h"
 #include "qdir.h"
+#include "qfileinfo.h"
 #include "qlist.h"
 #include "qlogging.h"
 #include "qprocess.h"
@@ -52,8 +53,8 @@ private:
     QString path;
     for (QString n : paths) {
       path = QDir(QCoreApplication::applicationDirPath()).filePath(n);
-      QFile file(path);
-      if (file.exists())
+      QFileInfo file(path);
+      if (file.exists() && file.isFile())
         return path;
     }
 
