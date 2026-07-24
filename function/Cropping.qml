@@ -241,7 +241,7 @@ Item {
     Com.SavePathSelect {
         id: save_path_select
         input_video_path: videoPlay.video_path
-        onSelected: {
+        onSelected: function (in_path, out_path) {
             let file_path = remove_pre(videoPlay.video_path, "file://");
             let crop_str = `${input_w.text}:${input_h.text}:${input_x.text}:${input_y.text}`;
             cmd.push_ffmpeg_cmd(`ffmpeg -i ${in_path} -vf "crop=${crop_str}" ${out_path}`);

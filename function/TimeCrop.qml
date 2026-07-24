@@ -67,7 +67,7 @@ Item {
     Com.SavePathSelect {
         id: save_path_select
         input_video_path: videoPlay.video_path
-        onSelected: {
+        onSelected: function (in_path, out_path) {
             let file_path = remove_pre(videoPlay.video_path, "file://");
             cmd.push_ffmpeg_cmd(`ffmpeg -i ${in_path} -ss ${input_start.text} -to ${input_end.text} ${out_path}`);
             cmd.save_ffmpeg_cmd();
