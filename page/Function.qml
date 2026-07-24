@@ -19,6 +19,10 @@ Item {
             name: "TimeCrop"
             text: qsTr("时间裁剪")
         }
+        ListElement {
+            name: "splicing"
+            text: qsTr("视频拼接")
+        }
     }
     ListView {
         id: listview
