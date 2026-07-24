@@ -22,6 +22,8 @@ Item {
 
     property bool hasFocus: field.activeFocus
 
+    signal submitted
+
     RowLayout {
         id: row
         spacing: 8
@@ -74,6 +76,8 @@ Item {
                 wrapMode: TextInput.NoWrap
                 verticalAlignment: TextInput.AlignVCenter
                 background: Item {}
+
+                onAccepted: root.submitted()
 
                 onTextChanged: Qt.callLater(function () {
                     if (root.text !== field.text)

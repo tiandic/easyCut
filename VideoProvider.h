@@ -12,6 +12,7 @@
 #include <QtMultimedia/QVideoSink>
 #include <QtQml>
 
+#include <libavutil/rational.h>
 #include <limits>
 #include <stdint.h>
 
@@ -43,6 +44,7 @@ public:
   AVCodecContext *codec_ctx_audio;
   int sample_rate;
   int nb_channels;
+  double progress_time;
 
   explicit Ffmpeg_frame(QString local_video_path) {
     QByteArray ba = local_video_path.toLocal8Bit();
@@ -173,6 +175,10 @@ public:
     }
 
     // dumpAVFrame(frame_video);
+
+    progress_time = av_rescale_q(
+        frame_video->best_effort_timestamp,
+        fmt_ctx->streams[video_stream_index]->time_base, (AVRational){1, 100});
 
     return frame_video;
   }
@@ -527,6 +533,7 @@ class VideoProvider : public QObject {
   Q_PROPERTY(bool videoPlaying READ videoPlaying)
   Q_PROPERTY(int videoWidth READ videoWidth)
   Q_PROPERTY(int videoHeight READ videoHeight)
+  Q_PROPERTY(int progressTime READ progressTime)
 
 public:
   AVRational video_steam_base_time;
@@ -543,6 +550,7 @@ public:
     qDebug() << "get ffmpeg_frame->height = " << ffmpeg_frame->height;
     return ffmpeg_frame->height;
   }
+  int progressTime() const { return ffmpeg_frame->progress_time; }
 
   void setVideoSink(QVideoSink *sink) {
     if (m_sink != sink) {

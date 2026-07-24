@@ -77,7 +77,13 @@ Item {
             Layout.fillWidth: true
             to: 0
 
+            property bool is_from_videoProvider: false
+
             onValueChanged: {
+                // 同步视频与进度条进度
+                if (is_from_videoProvider)
+                    return;
+
                 // 避免拖动进度条时卡死
                 if (Date.now() - last_ms < 500) {
                     last_ms = Date.now();
@@ -156,21 +162,54 @@ Item {
             }
         }
 
-        Com.Button {
-            Layout.preferredWidth: 40
-            Layout.preferredHeight: Layout.preferredWidth
-            radius: Layout.preferredHeight / 2
+        RowLayout {
+            spacing: 10
+            Com.Button {
+                Layout.preferredWidth: 40
+                Layout.preferredHeight: Layout.preferredWidth
+                radius: Layout.preferredHeight / 2
 
-            text_: "▶"
-            onClicked: {
-                if (videoProvider.videoPlaying) {
-                    videoProvider.stop();
-                    text_ = "▶";
-                } else {
-                    videoProvider.start();
-                    text_ = "⏸";
+                text_: "▶"
+                onClicked: {
+                    if (videoProvider.videoPlaying) {
+                        videoProvider.stop();
+                        text_ = "▶";
+                    } else {
+                        videoProvider.start();
+                        text_ = "⏸";
+                    }
                 }
             }
+
+            Com.LabelInput2 {
+                id: input_progress
+                label: "进度"
+                Layout.preferredWidth: 95
+                text: {
+                    let TotalSec = slider.value;
+                    let m = Math.floor(TotalSec / 60);
+                    let s = Math.floor(TotalSec % 60);
+
+                    return `${m}:${String(s).padStart(2, "0")}`;
+                }
+                onSubmitted: {
+                    let m_and_s = text.split(":");
+                    let TotalSec = parseInt(m_and_s[0]) * 60 + parseInt(m_and_s[1]);
+                    slider.value = TotalSec;
+                }
+            }
+        }
+    }
+
+    Timer {
+        interval: 100
+        repeat: true
+        running: true
+
+        onTriggered: {
+            slider.is_from_videoProvider = true;
+            slider.value = videoProvider.progressTime / 100;
+            slider.is_from_videoProvider = false;
         }
     }
 }
