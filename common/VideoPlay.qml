@@ -1,6 +1,9 @@
 import QtQuick 2.15
 import QtQuick.Controls 2
+import QtQuick.Layouts
 import QtMultimedia
+
+import "../common" as Com
 
 Item {
 
@@ -57,7 +60,7 @@ Item {
     }
 
     // 进度条与暂停键等
-    Item {
+    ColumnLayout {
         id: control
         anchors {
             // 位于画面下面,并有一定间隔
@@ -71,10 +74,7 @@ Item {
         height: parent.height / 8
         Slider {
             id: slider
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            Layout.fillWidth: true
             to: 0
 
             onValueChanged: {
@@ -152,6 +152,23 @@ Item {
 
                         return `${m}:${String(s).padStart(2, "0")}`;
                     }
+                }
+            }
+        }
+
+        Com.Button {
+            Layout.preferredWidth: 40
+            Layout.preferredHeight: Layout.preferredWidth
+            radius: Layout.preferredHeight / 2
+
+            text_: "▶"
+            onClicked: {
+                if (videoProvider.videoPlaying) {
+                    videoProvider.stop();
+                    text_ = "▶";
+                } else {
+                    videoProvider.start();
+                    text_ = "⏸";
                 }
             }
         }
