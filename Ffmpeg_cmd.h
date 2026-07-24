@@ -13,6 +13,7 @@
 #include <QObject>
 #include <QStandardPaths>
 #include <QtQml>
+#include <ctime>
 
 #include "config.h"
 #include "qurl.h"
@@ -33,6 +34,35 @@ public:
     return url.toLocalFile();
   }
 
+  Q_INVOKABLE QString echo_tmp_file(QString file_name, QString text) {
+    // 创建一个临时文件,将输入参数的内容写进该文件
+    // ret:
+    //      file_path: 临时文件的路径
+
+    QString tempPath = QDir::tempPath() + '/' +
+                       QString::number(QDateTime::currentMSecsSinceEpoch()) +
+                       "_" + file_name;
+    QFile file(tempPath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      QTextStream out(&file);
+      out.setEncoding(QStringConverter::Utf8);
+      out << text;
+      file.close();
+      tmp_files.append(tempPath);
+      return tempPath;
+    }
+    return QString();
+  }
+
+  Q_INVOKABLE void rm_tmp_file(QString path) {
+    // 删除临时文件,根据路径删除
+    // 只有通过 echo_tmp_file() 创建的文件才能通过该函数删除
+    if (!tmp_files.contains(path))
+      return;
+    tmp_files.removeAll(path);
+    QFile::remove(path);
+  }
+
   Q_INVOKABLE void exec_ffmpeg() {
     QString exec_path = get_exec_path();
     QString exec_gui_path = get_exec_gui_path();
@@ -48,6 +78,7 @@ public:
 
 private:
   Config_file_ffmpeg_cmd config;
+  QList<QString> tmp_files;
   QList<QString> exec_paths = {"exec_cmd", "exec_cmd.exe", "exec_cmd/exec_cmd",
                                "exec_cmd/exec_cmd.exe"};
   QList<QString> exec_gui_paths = {"appexec_cmd_gui", "appexec_cmd_gui.exe",

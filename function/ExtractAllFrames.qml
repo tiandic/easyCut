@@ -14,16 +14,6 @@ Item {
         id: list_data
     }
 
-    function get_extension(filename) {
-        if (!filename)
-            return '';
-        console.debug("get_extension():", filename);
-        const idx = filename.lastIndexOf('.');
-        if (idx === -1 || idx === 0)
-            return '';
-        return filename.slice(idx + 1);
-    }
-
     ColumnLayout {
         id: input
         anchors.top: parent.top

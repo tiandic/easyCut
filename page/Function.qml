@@ -1,6 +1,5 @@
 import QtQuick 2.15
 import "../common" as Com
-import "../function" as Funcs
 
 // 功能选择
 Item {
@@ -30,6 +29,10 @@ Item {
         ListElement {
             name: "AddAudio"
             text: qsTr("添加音频")
+        }
+        ListElement {
+            name: "AddSubtitles"
+            text: qsTr("添加字幕")
         }
         ListElement {
             name: "ExtractAllFrames"
