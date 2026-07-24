@@ -23,6 +23,10 @@ Item {
             name: "splicing"
             text: qsTr("视频拼接")
         }
+        ListElement {
+            name: "ExtractAudio"
+            text: qsTr("提取音频")
+        }
     }
     ListView {
         id: listview
