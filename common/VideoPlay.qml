@@ -185,13 +185,7 @@ Item {
                 id: input_progress
                 label: "进度"
                 Layout.preferredWidth: 95
-                text: {
-                    let TotalSec = slider.value;
-                    let m = Math.floor(TotalSec / 60);
-                    let s = Math.floor(TotalSec % 60);
-
-                    return `${m}:${String(s).padStart(2, "0")}`;
-                }
+                text: ""
                 onSubmitted: {
                     let m_and_s = text.split(":");
                     let TotalSec = parseInt(m_and_s[0]) * 60 + parseInt(m_and_s[1]);
@@ -207,6 +201,14 @@ Item {
         running: true
 
         onTriggered: {
+            if (!input_progress.hasFocus) {
+                let TotalSec = slider.value;
+                let m = Math.floor(TotalSec / 60);
+                let s = Math.floor(TotalSec % 60);
+
+                input_progress.text = `${m}:${String(s).padStart(2, "0")}`;
+            }
+
             slider.is_from_videoProvider = true;
             slider.value = videoProvider.progressTime / 100;
             slider.is_from_videoProvider = false;

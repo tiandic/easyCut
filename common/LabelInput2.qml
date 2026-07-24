@@ -77,7 +77,16 @@ Item {
                 verticalAlignment: TextInput.AlignVCenter
                 background: Item {}
 
-                onAccepted: root.submitted()
+                Keys.onPressed: (event) => {
+                        if (event.key === Qt.Key_Escape) {
+                            focus = false
+                        }
+                    }
+
+                onAccepted:{
+                  root.submitted()
+                  focus = false 
+              }
 
                 onTextChanged: Qt.callLater(function () {
                     if (root.text !== field.text)
