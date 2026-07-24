@@ -186,7 +186,7 @@ Item {
                 concats.push(cmd.cvt_file_url_to_local(list_data.get(i).name));
 
             let concat_str = `"concat:${concats.join('|')}"`;
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i ${concat_str} ${out_path}`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i ${concat_str} "${out_path}"`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
