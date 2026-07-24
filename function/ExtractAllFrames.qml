@@ -78,7 +78,7 @@ Item {
             let in_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
             let save_path = cmd.cvt_file_url_to_local(out_dir_path_select.selectedFolder.toString()) + "/" + input_format.text;
 
-            cmd.push_ffmpeg_cmd(`ffmpeg -i "${in_path}" "${save_path}"`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" "${save_path}"`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }

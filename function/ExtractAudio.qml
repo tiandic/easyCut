@@ -81,7 +81,7 @@ Item {
             if (save_path.indexOf('.') === -1)
                 save_path = save_path + '.mp3';
 
-            cmd.push_ffmpeg_cmd(`ffmpeg -i ${in_path} -vn ${save_path}`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i ${in_path} -vn ${save_path}`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
