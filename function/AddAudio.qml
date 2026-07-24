@@ -1,7 +1,6 @@
 import QtQuick 2.15
-import QtQuick.Layouts 1.15
 import QtQuick.Dialogs
-import QtCore
+import QtQuick.Layouts 1.15
 
 import "../common" as Com
 
@@ -14,6 +13,15 @@ Item {
         id: list_data
     }
 
+    function get_extension(filename) {
+        if (!filename)
+            return '';
+        console.debug("get_extension():", filename);
+        const idx = filename.lastIndexOf('.');
+        if (idx === -1 || idx === 0)
+            return '';
+        return filename.slice(idx + 1);
+    }
     function get_path_name(path) {
         path = cmd.cvt_file_url_to_local(path);
         let idx = path.lastIndexOf('/');
@@ -61,14 +69,6 @@ Item {
                 }
             }
 
-            remove: Transition {
-                NumberAnimation {
-                    property: "opacity"
-                    to: 0
-                    duration: 200
-                }
-            }
-
             delegate: Rectangle {
                 id: delegate_root
                 width: listview.width
@@ -80,55 +80,10 @@ Item {
                 RowLayout {
                     anchors.fill: parent
 
-                    Item {
-                        Layout.preferredWidth: 3
-                        Layout.alignment: Qt.AlignLeft
-                    }
-
                     Text {
                         Layout.preferredHeight: parent.height / 3
-                        Layout.alignment: Qt.AlignLeft
+                        Layout.alignment: Qt.AlignVCenter
                         text: get_path_name(name)
-                    }
-
-                    // Item {
-                    // Layout.fillWidth: true
-                    // }
-
-                    ListView.onRemove: removeAnim.start()
-                    ListView.delayRemove: removeAnim.running
-                    SequentialAnimation {
-                        id: removeAnim
-                        PropertyAction {
-                            target: delegate_root
-                            property: "ListView.delayRemove"
-                            value: true
-                        }
-                        NumberAnimation {
-                            target: delegate_root
-                            property: "opacity"
-                            to: 0
-                            duration: 200
-                        }
-                        PropertyAction {
-                            target: delegate_root
-                            property: "ListView.delayRemove"
-                            value: false
-                        }
-                    }
-
-                    Com.Button {
-                        Layout.preferredHeight: parent.height / 1.5
-                        Layout.preferredWidth: Layout.preferredHeight + 5
-                        Layout.alignment: Qt.AlignRight
-                        text_: qsTr("X")
-                        onClicked: {
-                            list_data.remove(index);
-                        }
-                    }
-                    Item {
-                        Layout.preferredWidth: 3
-                        Layout.alignment: Qt.AlignRight
                     }
                 }
             }
@@ -145,9 +100,9 @@ Item {
 
             Com.Button {
                 Layout.fillWidth: true
-                text_: qsTr("选择视频")
+                text_: qsTr("选择音频")
                 onClicked: {
-                    video_select.open();
+                    audio_path_select.open();
                 }
             }
             Com.Button {
@@ -180,26 +135,27 @@ Item {
         id: save_path_select
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
-            let file_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
-            let concats = [];
-            for (let i = 0; i < list_data.count; i++)
-                concats.push(cmd.cvt_file_url_to_local(list_data.get(i).name));
-
-            let concat_str = `"concat:${concats.join('|')}"`;
-            cmd.push_ffmpeg_cmd(`ffmpeg -i ${concat_str} ${out_path}`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -i "${in_path}" -i "${cmd.cvt_file_url_to_local(list_data.get(0).name)}" -filter_complex "[0:a][1:a]amix=2[a]" -map "0:v" -map "[a]" ${out_path}`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
     }
 
     FileDialog {
-        id: video_select
-        title: qsTr("选择视频文件")
+        id: audio_path_select
+        title: qsTr("选择需要添加的音频")
+        fileMode: FileDialog.OpenFile
+        currentFile: {
+            let ext = get_extension(root.input_video_path);
+            if (ext !== '')
+                return "out." + ext;
+            return "out.mp3";
+        }
         currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
-        nameFilters: [qsTr("视频文件 (*.mp4 *.m4v *.mkv *.avi *.mov *.qt *.flv *.webm *.mpg *.mpeg *.m2v *.m1v *.mpv *.ts *.mts *.m2ts *.vob *.ogv *.3gp *.3g2 *.str *.4xm *.a64 *.amv *.dv *.yuv *.h264 *.264 *.hevc *.h265 *.vp8 *.vp9 *.prores *.mxf *.cineform *.huff *.ffv1 *.snow *.vp6 *.ogv)"), qsTr("所有文件 (*)")]
+        nameFilters: [qsTr("音频文件 (*.mp3 *.wav *.aac *.flac *.ogg *.oga *.m4a *.wma *.opus *.ape *.ac3 *.eac3 *.dts *.amr *.aiff *.aif *.au *.ra *.mka *.tta *.wv *.caf *.dsf *.dff *.spx *.gsm *.voc *.mid *.midi *.pcm *.alac *.mp2 *.mp1 *.weba *.oga)"), qsTr("所有文件 (*)")]
         onAccepted: {
             list_data.append({
-                "name": video_select.selectedFile.toString()
+                "name": audio_path_select.selectedFile.toString()
             });
         }
     }

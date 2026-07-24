@@ -15,6 +15,7 @@
 #include <QtQml>
 
 #include "config.h"
+#include "qurl.h"
 
 class Ffmpeg_cmd : public QObject {
   Q_OBJECT
@@ -27,6 +28,10 @@ public:
   Q_INVOKABLE QString pop_ffmpeg_cmd() { return config.pop_ffmpeg_cmd(); }
 
   Q_INVOKABLE void save_ffmpeg_cmd() { config.save_ffmpeg_cmd(); }
+
+  Q_INVOKABLE QString cvt_file_url_to_local(QUrl url) {
+    return url.toLocalFile();
+  }
 
   Q_INVOKABLE void exec_ffmpeg() {
     QString exec_path = get_exec_path();

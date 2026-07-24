@@ -44,6 +44,7 @@ qt_add_qml_module(appeasyCut
         QML_FILES common/SavePathSelect.qml
         QML_FILES function/splicing.qml
         QML_FILES function/ExtractAudio.qml
+        QML_FILES function/AddAudio.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

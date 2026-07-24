@@ -27,6 +27,10 @@ Item {
             name: "ExtractAudio"
             text: qsTr("提取音频")
         }
+        ListElement {
+            name: "AddAudio"
+            text: qsTr("添加音频")
+        }
     }
     ListView {
         id: listview
