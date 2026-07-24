@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts 1.15
+import QtCore
 
 import "../common" as Com
 

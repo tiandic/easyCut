@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts 1.15
+import QtCore
 
 import "../common" as Com
 
@@ -151,7 +152,7 @@ Item {
                 return "out." + ext;
             return "out.mp3";
         }
-        currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
+        currentFolder: StandardPaths.standardLocations(StandardPaths.MusicLocation)[0]
         nameFilters: [qsTr("音频文件 (*.mp3 *.wav *.aac *.flac *.ogg *.oga *.m4a *.wma *.opus *.ape *.ac3 *.eac3 *.dts *.amr *.aiff *.aif *.au *.ra *.mka *.tta *.wv *.caf *.dsf *.dff *.spx *.gsm *.voc *.mid *.midi *.pcm *.alac *.mp2 *.mp1 *.weba *.oga)"), qsTr("所有文件 (*)")]
         onAccepted: {
             list_data.append({
