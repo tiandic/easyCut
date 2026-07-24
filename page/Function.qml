@@ -1,4 +1,5 @@
 import QtQuick 2.15
+import QtQuick.Layouts
 import "../common" as Com
 
 // 功能选择
@@ -39,44 +40,72 @@ Item {
             text: qsTr("提取所有帧")
         }
     }
-    ListView {
-        id: listview
+
+    ColumnLayout {
+        id: func_col
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        spacing: 10
 
         width: parent.width / 5
 
-        model: func_list_data
-
-        function goto_function(n) {
-            var comp = Qt.createComponent("../function/" + n + ".qml");
-            if (comp.status == Component.Ready) {
-                var obj = comp.createObject(null, {
-                    video_path: select_function.video_path,
-                    stackView: select_function.stackView
-                });
-                if (obj == null) {
-                    console.log(n + " create failed!");
-                    return;
-                }
-                stackView.push(obj);
-            } else if (comp.status == Component.Error)
-                console.log(comp.errorString());
+        Item {
+            Layout.preferredHeight: 10
         }
 
-        delegate: Com.Button {
-            id: button
-            width: listview.width * 5 / 6
-            height: width / 3
-            text_: model.text
-            onClicked: listview.goto_function(model.name)
+        RowLayout {
+            Item {
+                Layout.preferredWidth: 10
+            }
+            Com.Button {
+                text_: qsTr("← 返回")
+                onClicked: stackView.pop()
+                Layout.preferredWidth: 80
+                Layout.preferredHeight: 30
+            }
         }
 
-        anchors {
-            leftMargin: width / 9
-            topMargin: width / 12
+        Item {
+            Layout.preferredHeight: 10
+        }
+
+        ListView {
+            id: listview
+            spacing: 10
+
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            model: func_list_data
+
+            function goto_function(n) {
+                var comp = Qt.createComponent("../function/" + n + ".qml");
+                if (comp.status == Component.Ready) {
+                    var obj = comp.createObject(null, {
+                        video_path: select_function.video_path,
+                        stackView: select_function.stackView
+                    });
+                    if (obj == null) {
+                        console.log(n + " create failed!");
+                        return;
+                    }
+                    stackView.push(obj);
+                } else if (comp.status == Component.Error)
+                    console.log(comp.errorString());
+            }
+
+            delegate: Com.Button {
+                id: button
+                width: listview.width * 5 / 6
+                height: width / 3
+                text_: model.text
+                onClicked: listview.goto_function(model.name)
+            }
+
+            anchors {
+                leftMargin: width / 9
+                topMargin: width / 12
+            }
         }
     }
 
@@ -87,7 +116,7 @@ Item {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        anchors.left: listview.right
+        anchors.left: func_col.right
 
         anchors.rightMargin: 10
 

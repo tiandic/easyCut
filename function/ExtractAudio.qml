@@ -34,7 +34,23 @@ Item {
         spacing: 5
 
         Item {
-            Layout.preferredHeight: 20
+            Layout.preferredHeight: 10
+        }
+
+        RowLayout {
+            Item {
+                Layout.preferredWidth: 10
+            }
+            Com.Button {
+                text_: qsTr("← 返回")
+                onClicked: stackView.pop()
+                Layout.preferredWidth: 80
+                Layout.preferredHeight: 30
+            }
+        }
+
+        Item {
+            Layout.preferredHeight: 10
         }
 
         Com.Button {

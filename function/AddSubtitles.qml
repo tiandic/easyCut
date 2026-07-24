@@ -26,29 +26,29 @@ Item {
         return filename.slice(idx + 1);
     }
 
-function get_subtitle_codec(ext) {
-    const extension = ext.toLowerCase().replace(/^\./, '');
+    function get_subtitle_codec(ext) {
+        const extension = ext.toLowerCase().replace(/^\./, '');
 
-    const movTextContainers = ['mp4', 'm4v', 'mov', 'qt', '3gp', '3g2'];
+        const movTextContainers = ['mp4', 'm4v', 'mov', 'qt', '3gp', '3g2'];
 
-    const copyContainers = ['mkv', 'mka'];
+        const copyContainers = ['mkv', 'mka'];
 
-    const webvttContainers = ['webm'];
+        const webvttContainers = ['webm'];
 
-    if (movTextContainers.includes(extension)) {
-        return 'mov_text';
+        if (movTextContainers.includes(extension)) {
+            return 'mov_text';
+        }
+        if (copyContainers.includes(extension)) {
+            return 'copy';
+        }
+        if (webvttContainers.includes(extension)) {
+            return 'webvtt';
+        }
+
+        // 其余容器(avi、flv、ts/mts/m2ts、mpg、wmv 等)普遍不支持软字幕流封装,
+        // 改用硬字幕烧录(-vf subtitles=xxx.srt)或先转封装到 mkv/mp4
+        return null;
     }
-    if (copyContainers.includes(extension)) {
-        return 'copy';
-    }
-    if (webvttContainers.includes(extension)) {
-        return 'webvtt';
-    }
-
-    // 其余容器(avi、flv、ts/mts/m2ts、mpg、wmv 等)普遍不支持软字幕流封装,
-    // 改用硬字幕烧录(-vf subtitles=xxx.srt)或先转封装到 mkv/mp4
-    return null;
-}
 
     ColumnLayout {
         id: input
@@ -60,9 +60,24 @@ function get_subtitle_codec(ext) {
         spacing: 5
 
         Item {
-            Layout.preferredHeight: 20
+            Layout.preferredHeight: 10
         }
 
+        RowLayout {
+            Item {
+                Layout.preferredWidth: 10
+            }
+            Com.Button {
+                text_: qsTr("← 返回")
+                onClicked: stackView.pop()
+                Layout.preferredWidth: 80
+                Layout.preferredHeight: 30
+            }
+        }
+
+        Item {
+            Layout.preferredHeight: 10
+        }
         ListView {
             id: listview
             Layout.fillWidth: true
@@ -220,13 +235,13 @@ function get_subtitle_codec(ext) {
                 Layout.fillWidth: true
                 text_: qsTr("添加完成")
                 onClicked: {
-                  let subtitles_text=""
+                    let subtitles_text = "";
 
-                  for (let i = 0; i < list_data.count; i++)
-                    subtitles_text+=`${i + 1}\n${list_data.get(i).start_time} --> ${list_data.get(i).end_time}\n${list_data.get(i).subtitles}\n\n`
+                    for (let i = 0; i < list_data.count; i++)
+                        subtitles_text += `${i + 1}\n${list_data.get(i).start_time} --> ${list_data.get(i).end_time}\n${list_data.get(i).subtitles}\n\n`;
 
-                  root.subtitles_file_path=cmd.echo_tmp_file("subtitles.srt",subtitles_text)
-                  save_path_select.dialog.open();
+                    root.subtitles_file_path = cmd.echo_tmp_file("subtitles.srt", subtitles_text);
+                    save_path_select.dialog.open();
                 }
             }
         }
@@ -252,7 +267,7 @@ function get_subtitle_codec(ext) {
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${root.subtitles_file_path}" -c:s ${get_subtitle_codec(get_extension(out_path))} ${out_path}`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
-            // cmd.rm_tmp_file(root.subtitles_file_path);
+        // cmd.rm_tmp_file(root.subtitles_file_path);
         }
     }
 
