@@ -36,12 +36,19 @@ Item {
         Item {
             Layout.preferredHeight: 20
         }
+        Com.LabelInput2 {
+            id: input_format
+            Layout.fillWidth: true
+            label: "输出格式"
+
+            text: "frame_%06d.png"
+        }
 
         Com.Button {
             Layout.fillWidth: true
             text_: qsTr("确认")
             onClicked: {
-                save_path_select.open();
+                out_dir_path_select.open();
             }
         }
         Item {
@@ -62,26 +69,16 @@ Item {
         video_path: root.video_path
     }
 
-    FileDialog {
-        id: save_path_select
+    FolderDialog {
+        id: out_dir_path_select
         title: qsTr("选择保存位置")
-        fileMode: FileDialog.SaveFile
-        currentFile: {
-            let ext = get_extension(root.input_video_path);
-            if (ext !== '')
-                return "out." + ext;
-            return "out.mp3";
-        }
-        currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
-        nameFilters: [qsTr("音频文件 (*.mp3 *.wav *.aac *.flac *.ogg *.oga *.m4a *.wma *.opus *.ape *.ac3 *.eac3 *.dts *.amr *.aiff *.aif *.au *.ra *.mka *.tta *.wv *.caf *.dsf *.dff *.spx *.gsm *.voc *.mid *.midi *.pcm *.alac *.mp2 *.mp1 *.weba *.oga)"), qsTr("所有文件 (*)")]
+        currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
 
         onAccepted: {
             let in_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
-            let save_path = cmd.cvt_file_url_to_local(save_path_select.selectedFile.toString());
-            if (save_path.indexOf('.') === -1)
-                save_path = save_path + '.mp3';
+            let save_path = cmd.cvt_file_url_to_local(out_dir_path_select.selectedFolder.toString()) + "/" + input_format.text;
 
-            cmd.push_ffmpeg_cmd(`ffmpeg -i ${in_path} -vn ${save_path}`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -i "${in_path}" "${save_path}"`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }

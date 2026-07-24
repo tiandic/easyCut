@@ -31,6 +31,10 @@ Item {
             name: "AddAudio"
             text: qsTr("添加音频")
         }
+        ListElement {
+            name: "ExtractAllFrames"
+            text: qsTr("提取所有帧")
+        }
     }
     ListView {
         id: listview
