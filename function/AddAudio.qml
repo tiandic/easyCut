@@ -32,6 +32,26 @@ Item {
             return path;
         return path.slice(idx + 1);
     }
+    function cvt_time_to_ms(t) {
+        // 转换标准时间格式为毫秒数
+        // 支持如下格式:
+        // 4:11:40 or 4:11:40,560 or 11:11 or 11:11,700 or 12,560 or 4 (只输入一个数字默认为秒)
+        let ms = 0;
+        let i; // 计算到了第几位
+
+        if (t.indexOf(',') != -1) {
+            let t_and_ms = t.split(",");
+            t = t_and_ms[0];
+            ms = parseInt(t_and_ms[1]);
+        }
+        for (i = 0; (i <= 2 && t.indexOf(':') != -1); i++) {
+            let t2_list = t.split(":");
+            ms += parseInt(t2_list.pop()) * (60 ** i) * 1000;
+            t = t2_list.join(':');
+        }
+        ms += parseInt(t) * (60 ** i) * 1000;
+        return ms;
+    }
 
     ColumnLayout {
         id: input
@@ -114,8 +134,8 @@ Item {
         Com.LabelInput2 {
             id: input_start_time
             Layout.fillWidth: true
-            label: qsTr("开始播放时间(单位: 毫秒)")
-            text: '0'
+            label: qsTr("开始播放时间")
+            text: '00:00:00,000'
         }
 
         RowLayout {
@@ -159,7 +179,7 @@ Item {
         id: save_path_select
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${cmd.cvt_file_url_to_local(list_data.get(0).name)}" -filter_complex "[1:a]adelay=${input_start_time.text}:all=1[adelay_audio];[0:a][adelay_audio]amix=2:duration=first[a]" -map "0:v" -map "[a]" ${out_path}`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${cmd.cvt_file_url_to_local(list_data.get(0).name)}" -filter_complex "[1:a]adelay=${cvt_time_to_ms(input_start_time.text)}:all=1[adelay_audio];[0:a][adelay_audio]amix=2:duration=first[a]" -map "0:v" -map "[a]" ${out_path}`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
