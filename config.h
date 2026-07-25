@@ -24,7 +24,10 @@ public:
     }
   }
 
-  void push_ffmpeg_cmd(QString cmd) { command_list.prepend(cmd); }
+  void push_ffmpeg_cmd(QString cmd) {
+    qDebug() << "push cmd:" << cmd;
+    command_list.prepend(cmd);
+  }
 
   QString get_config_path() {
     return QDir(get_config_dir()).filePath("ffmpeg_cmd_list.txt");
