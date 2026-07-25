@@ -84,6 +84,7 @@ Item {
                 if (is_from_videoProvider)
                     return;
 
+                // TODO: 优化拖动时的反馈
                 // 避免拖动进度条时卡死
                 if (Date.now() - last_ms < 500) {
                     last_ms = Date.now();
