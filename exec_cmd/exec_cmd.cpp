@@ -1,4 +1,5 @@
 #include <fstream>
+#include <sstream>
 #include <string>
 
 #if !defined(_WIN32)
@@ -17,6 +18,14 @@ int main(int argc, char *argv[]) {
 #if !defined(_WIN32)
   ret = WEXITSTATUS(ret);
 #endif
+
+  // 删除已经执行了的行
+  std::stringstream buf;
+  buf << f.rdbuf();
+  f.close();
+
+  std::ofstream f2(argv[1]);
+  f2 << buf.str();
 
   return ret;
 }
