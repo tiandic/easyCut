@@ -71,6 +71,9 @@ Item {
         property int x_eren2: 0
         property int y_eren2: 0
 
+        // 记录光标是否处于 "抓住" 状态
+        property bool cursor_grab: false
+
         hoverEnabled: true
         anchors.fill: parent
 
@@ -83,7 +86,6 @@ Item {
             // 中间
             if ((!down && !down2 && !down3 && !down4) && ((down5) || (mouseX > rect_X && mouseX < rect_X1 && mouseY > rect_Y && mouseY < rect_Y1))) {
                 if (pressed) {
-                    cursorShape = Qt.ClosedHandCursor;
                     down5 = true;
                     if (x_eren == 0 && y_eren == 0 && x_eren2 == 0 && y_eren2 == 0) {
                         // 刚刚按下时,记录在中间按下后鼠标与矩形两个坐标的差值,以移动矩形
@@ -142,7 +144,21 @@ Item {
             }
         }
 
+        onPressed: {
+            // 在矩形中间按下鼠标左键后,设置光标为 "抓住" 状态的样式
+            if ((!down && !down2 && !down3 && !down4) && ((down5) || (mouseX > rect_X && mouseX < rect_X1 && mouseY > rect_Y && mouseY < rect_Y1))) {
+                cursor_grab = true;
+                cursorShape = Qt.ClosedHandCursor;
+            }
+        }
+
         onReleased: {
+            // 光标处于 "抓住" 状态时,松开鼠标设置为 "松开" 状态的样式
+            if (cursor_grab) {
+                cursor_grab = false;
+                cursorShape = Qt.OpenHandCursor;
+            }
+
             down = false;
             down2 = false;
             down3 = false;
