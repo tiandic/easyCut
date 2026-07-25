@@ -104,7 +104,7 @@ Item {
 
             handle: Rectangle {
                 x: slider.visualPosition * slider.width// - width / 2 + slider.leftPadding
-                // y: (parent.height - height) / 2 + parent.topPadding
+                y: (parent.height - height) / 2
 
                 width: 14
                 height: 14
