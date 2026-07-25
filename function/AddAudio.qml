@@ -111,6 +111,13 @@ Item {
             }
         }
 
+        Com.LabelInput2 {
+            id: input_start_time
+            Layout.fillWidth: true
+            label: qsTr("开始播放时间(单位: 毫秒)")
+            text: '0'
+        }
+
         RowLayout {
             Layout.fillWidth: true
             spacing: 8
@@ -152,7 +159,7 @@ Item {
         id: save_path_select
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${cmd.cvt_file_url_to_local(list_data.get(0).name)}" -filter_complex "[0:a][1:a]amix=2[a]" -map "0:v" -map "[a]" ${out_path}`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${cmd.cvt_file_url_to_local(list_data.get(0).name)}" -filter_complex "[1:a]adelay=${input_start_time.text}:all=1[adelay_audio];[0:a][adelay_audio]amix=2:duration=first[a]" -map "0:v" -map "[a]" ${out_path}`);
             cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
