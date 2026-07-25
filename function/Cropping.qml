@@ -73,7 +73,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 label: "x"
-                placeholder: qsTr("矩形左上角的x坐标")
+                placeholder: "0"
 
                 // text: rect.rect_X
 
@@ -92,7 +92,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 label: "y"
-                placeholder: qsTr("矩形左上角的y坐标")
+                placeholder: "0"
 
                 // text: rect.rect_Y
 
@@ -116,7 +116,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 label: qsTr("宽")
-                placeholder: qsTr("矩形的宽")
+                placeholder: videoPlay.video_width
 
                 // text: rect.rect_X1 - rect.rect_X
 
@@ -135,7 +135,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 label: qsTr("高")
-                placeholder: qsTr("矩形的高")
+                placeholder: videoPlay.video_height
 
                 // text: rect.rect_Y1 - rect.rect_Y
 
