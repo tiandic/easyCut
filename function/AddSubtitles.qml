@@ -182,7 +182,7 @@ Item {
                     }
 
                     Com.Button {
-                        Layout.preferredHeight: 40
+                        Layout.preferredHeight: parent.height / 1.5
                         Layout.preferredWidth: Layout.preferredHeight + 5
                         Layout.alignment: Qt.AlignRight
                         text_: qsTr("X")
