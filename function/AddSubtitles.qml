@@ -12,6 +12,9 @@ Item {
     property string subtitles_file_path: "" // 临时字幕文件路径
     property var stackView
 
+    property string default_start_time: "00:00:00,000"
+    property string default_end_time: "00:00:04,000"
+
     ListModel {
         id: list_data
     }
@@ -196,7 +199,7 @@ Item {
                     Layout.preferredWidth: 1
                     label: qsTr("开始时间")
                     placeholder: qsTr("00:00:00,000")
-                    text: "00:00:00,000"
+                    text: root.default_start_time
                 }
                 Com.LabelInput2 {
                     id: input_end
@@ -204,6 +207,7 @@ Item {
                     Layout.preferredWidth: 1
                     label: qsTr("结束时间")
                     placeholder: qsTr("00:00:04,000")
+                    text: root.default_end_time
                 }
             }
             Com.LabelInput {
@@ -221,8 +225,8 @@ Item {
                         "end_time": input_end.text,
                         "subtitles": input_subtitles.text
                     });
-                    input_start.text = "";
-                    input_end.text = "";
+                    input_start.text = input_end.text;
+                    input_end.text = input_start.text;
                     input_subtitles.text = "";
                 }
             }
@@ -269,7 +273,6 @@ Item {
             else
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "subtitles=${root.subtitles_file_path}" ${out_path}`);
             cmd.exec_ffmpeg(root.subtitles_file_path);
-            cmd.start_rm_tmp_file_server(root.subtitles_file_path);
         }
     }
 
