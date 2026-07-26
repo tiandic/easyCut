@@ -14,6 +14,12 @@ Item {
         id: list_data
     }
 
+    Component.onCompleted: {
+        list_data.append({
+            "name": root.video_path
+        });
+    }
+
     function get_path_name(path) {
         path = cmd.cvt_file_url_to_local(path);
         let idx = path.lastIndexOf('/');
