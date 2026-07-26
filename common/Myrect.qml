@@ -16,6 +16,8 @@ Item {
     property bool mouse_enter: false
     property bool mouse_pressed: false
 
+    signal clickOutlined  // 当在矩形之外的区域点击后,将触发该信号
+
     onRect_XChanged: {
         if (rect_X + 10 > rect_X1)
             rect_X = rect_X1 - 10;
@@ -142,6 +144,11 @@ Item {
                 // 不在矩形上时,恢复光标
                 cursorShape = Qt.ArrowCursor;
             }
+        }
+
+        onClicked: {
+            if (cursorShape == Qt.ArrowCursor)
+                myrect.clickOutlined();
         }
 
         onPressed: {

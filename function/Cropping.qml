@@ -239,6 +239,9 @@ Item {
                 target: videoPlay.videooutput
                 onContentRectChanged: rect.updateRect()
             }
+            onClickOutlined: {
+                videoPlay.need_toggle_play_status = true;
+            }
 
             onMouse_pressedChanged: {
                 if (mouse_pressed)

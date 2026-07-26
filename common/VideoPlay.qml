@@ -18,6 +18,25 @@ Item {
     property string playing_icon: "▶"
     property string pausing_icon: "⏸"
 
+    property bool need_toggle_play_status: false // 当被设置为 true 时,会触发播放状态切换
+
+    function toggle_play_status() {
+        if (videoProvider.videoPlaying) {
+            videoProvider.stop();
+            play_button.text_ = playing_icon;
+        } else {
+            videoProvider.start();
+            play_button.text_ = pausing_icon;
+        }
+    }
+
+    onNeed_toggle_play_statusChanged: {
+        if (need_toggle_play_status) {
+            need_toggle_play_status = false;
+            toggle_play_status();
+        }
+    }
+
     Item {
         id: screen
 
@@ -54,13 +73,7 @@ Item {
                 width: parent.contentRect.width
                 height: parent.contentRect.height
                 onClicked: {
-                    if (videoProvider.videoPlaying) {
-                        videoProvider.stop();
-                        play_button.text_ = playing_icon;
-                    } else {
-                        videoProvider.start();
-                        play_button.text_ = pausing_icon;
-                    }
+                    toggle_play_status();
                 }
             }
         }
@@ -184,13 +197,7 @@ Item {
 
                 text_: "▶"
                 onClicked: {
-                    if (videoProvider.videoPlaying) {
-                        videoProvider.stop();
-                        text_ = playing_icon;
-                    } else {
-                        videoProvider.start();
-                        text_ = pausing_icon;
-                    }
+                    toggle_play_status();
                 }
             }
 
