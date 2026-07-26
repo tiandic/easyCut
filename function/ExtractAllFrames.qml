@@ -10,6 +10,14 @@ Item {
     property string video_path: ""
     property var stackView
 
+    function exec_ffmpeg() {
+        let in_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
+        let save_path = cmd.cvt_file_url_to_local(out_dir_path_select.selectedFolder.toString()) + "/" + input_format.text;
+
+        cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" "${save_path}"`);
+        cmd.exec_ffmpeg();
+    }
+
     ListModel {
         id: list_data
     }
@@ -53,7 +61,13 @@ Item {
             Layout.fillWidth: true
             text_: qsTr("确认")
             onClicked: {
-                out_dir_path_select.open();
+                if (input_format.text.indexOf('/') != -1) {
+                    msg.text = qsTr("输出格式中不应包含 '/'");
+                } else if (input_format.text.indexOf('\\') != -1) {
+                    msg.text = qsTr("输出格式中不应包含 '\\'");
+                } else {
+                    out_dir_path_select.open();
+                }
             }
         }
         Item {
@@ -80,11 +94,32 @@ Item {
         currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
 
         onAccepted: {
-            let in_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
-            let save_path = cmd.cvt_file_url_to_local(out_dir_path_select.selectedFolder.toString()) + "/" + input_format.text;
+            let dir_path = cmd.cvt_file_url_to_local(out_dir_path_select.selectedFolder.toString());
+            let llll = cmd.scan_dir(dir_path);
+            console.log(llll);
+            if (llll.length > 2) {
+                msg_warning.text = dir_path + "\n" + msg_warning.text;
+                msg_warning.open();
+            } else {
+                exec_ffmpeg();
+            }
+        }
+    }
 
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" "${save_path}"`);
-            cmd.exec_ffmpeg();
+    Com.MsgDialog {
+        id: msg
+    }
+    Com.MsgDialog {
+        id: msg_warning
+        title: qsTr("警告!")
+        text: qsTr("选择的目录不为空! 确定要将所有帧的文件输出到该目录下吗?")
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+        onButtonClicked: function (button, role) {
+            switch (button) {
+            case MessageDialog.Ok:
+                exec_ffmpeg();
+                break;
+            }
         }
     }
 

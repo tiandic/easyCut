@@ -82,6 +82,20 @@ public:
     QFile::remove(path);
   }
 
+  Q_INVOKABLE QList<QString> scan_dir(QString dir_path) {
+    QList<QString> ret;
+
+    QDir dir(dir_path);
+
+    dir.setFilter(QDir::AllEntries | QDir::Hidden);
+    QFileInfoList l = dir.entryInfoList();
+    for (int i = 0; i < l.size(); i++) {
+      QFileInfo file_info = l.at(i);
+      ret.append(file_info.fileName());
+    }
+    return ret;
+  }
+
   Q_INVOKABLE void exec_ffmpeg(QString rm_path = "") {
     // rm_path 会在ffmpeg命令正常结束后被删除
     QString exec_path = get_exec_path();
