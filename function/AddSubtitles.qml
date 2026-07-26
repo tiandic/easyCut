@@ -264,7 +264,11 @@ Item {
         id: save_path_select
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${root.subtitles_file_path}" -c:s ${get_subtitle_codec(get_extension(out_path))} ${out_path}`);
+            let subtitle_codec = get_subtitle_codec(get_extension(out_path));
+            if (subtitle_codec)
+                cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${root.subtitles_file_path}" -c:s ${subtitle_codec} ${out_path}`);
+            else
+                cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "subtitles=${root.subtitles_file_path}" ${out_path}`);
             cmd.exec_ffmpeg();
         // cmd.rm_tmp_file(root.subtitles_file_path);
         }
