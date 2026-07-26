@@ -202,7 +202,12 @@ Item {
                 Layout.fillWidth: true
                 text_: qsTr("确认")
                 onClicked: {
-                    save_path_select.dialog.open();
+                    if (list_data.count < 2) {
+                        msg.text = qsTr("至少应选择两个视频!");
+                        msg.open();
+                    } else {
+                        save_path_select.dialog.open();
+                    }
                 }
             }
         }
@@ -249,6 +254,10 @@ Item {
                 "name": video_select.selectedFile.toString()
             });
         }
+    }
+
+    Com.MsgDialog {
+        id: msg
     }
 
     Ffmpeg_cmd {
