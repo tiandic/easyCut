@@ -69,6 +69,9 @@ Item {
 
             model: list_data
 
+            property bool isClicked: false
+            interactive: !isClicked
+
             add: Transition {
                 NumberAnimation {
                     property: "opacity"
@@ -91,6 +94,13 @@ Item {
                 }
             }
 
+            move: Transition {
+                NumberAnimation {
+                    properties: "x,y"
+                    duration: 300
+                }
+            }
+
             delegate: Rectangle {
                 id: delegate_root
                 width: listview.width
@@ -98,6 +108,22 @@ Item {
                 border.width: 1
                 radius: 5
                 border.color: "gray"
+
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: {
+                        listview.currentIndex = index;
+                        listview.isClicked = true;
+                    }
+                    onReleased: listview.isClicked = false
+                    onPositionChanged: {
+                        var lastIndex = listview.indexAt(mouseX + delegate_root.x, mouseY + delegate_root.y);
+                        if (lastIndex < 0 || lastIndex >= list_data.count)
+                            return;
+                        if (index !== lastIndex)
+                            list_data.move(index, lastIndex, 1);
+                    }
+                }
 
                 RowLayout {
                     anchors.fill: parent
