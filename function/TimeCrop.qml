@@ -86,7 +86,6 @@ Item {
         onSelected: function (in_path, out_path) {
             let file_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -ss ${input_start.text} -to ${input_end.text} "${out_path}"`);
-            cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
     }

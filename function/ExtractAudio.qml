@@ -98,7 +98,6 @@ Item {
                 save_path = save_path + '.mp3';
 
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vn "${save_path}"`);
-            cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
     }

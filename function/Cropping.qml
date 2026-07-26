@@ -254,7 +254,6 @@ Item {
             let file_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
             let crop_str = `${input_w.text}:${input_h.text}:${input_x.text}:${input_y.text}`;
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "crop=${crop_str}" "${out_path}"`);
-            cmd.save_ffmpeg_cmd();
             cmd.exec_ffmpeg();
         }
     }

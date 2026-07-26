@@ -28,8 +28,6 @@ public:
   Q_INVOKABLE void push_ffmpeg_cmd(QString cmd) { config.push_ffmpeg_cmd(cmd); }
   Q_INVOKABLE QString pop_ffmpeg_cmd() { return config.pop_ffmpeg_cmd(); }
 
-  Q_INVOKABLE void save_ffmpeg_cmd() { config.save_ffmpeg_cmd(); }
-
   Q_INVOKABLE QString cvt_file_url_to_local(QUrl url) {
     return url.toLocalFile();
   }
