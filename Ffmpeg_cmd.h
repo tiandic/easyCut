@@ -32,14 +32,19 @@ public:
     return url.toLocalFile();
   }
 
-  Q_INVOKABLE QString echo_tmp_file(QString file_name, QString text) {
+  Q_INVOKABLE QString echo_tmp_file(QString file_name, QString text,
+                                    bool durability = false) {
     // 创建一个临时文件,将输入参数的内容写进该文件
     // ret:
     //      file_path: 临时文件的路径
+    QString tempPath;
+    QString tempFileName =
+        QString::number(QDateTime::currentMSecsSinceEpoch()) + "_" + file_name;
+    if (durability)
+      tempPath = QDir(get_durability_tmp_dir()).filePath(tempFileName);
+    else
+      tempPath = QDir(QDir::tempPath()).filePath(tempFileName);
 
-    QString tempPath = QDir::tempPath() + '/' +
-                       QString::number(QDateTime::currentMSecsSinceEpoch()) +
-                       "_" + file_name;
     QFile file(tempPath);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       QTextStream out(&file);
@@ -106,4 +111,11 @@ private:
   QString get_exec_path() { return find_exists_from_paths(exec_paths); }
 
   QString get_exec_gui_path() { return find_exists_from_paths(exec_gui_paths); }
+
+  QString get_durability_tmp_dir() {
+    QString dir =
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(dir);
+    return dir;
+  }
 };
