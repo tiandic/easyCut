@@ -14,6 +14,25 @@ Item {
         id: list_data
     }
 
+    function check_input(text) {
+        let l;
+        if (text == "")
+            return qsTr("输入不可为空!");
+        else if (text.split(',') > 2)
+            return qsTr("输入最多只能有一个逗号!");
+        else if (!(l = check_limit(text, "1234567890,:"))[0])
+            return qsTr(`输入不应包含字符 '${l[1]}'`);
+        return "";
+    }
+
+    function check_limit(text, limit_chars) {
+        for (let i = 0; i < text.length; i++) {
+            if (limit_chars.indexOf(text[i]) == -1)
+                return [false, text[i]];
+        }
+        return [true, ""];
+    }
+
     function get_extension(filename) {
         if (!filename)
             return '';
@@ -153,7 +172,16 @@ Item {
                 Layout.fillWidth: true
                 text_: qsTr("确认")
                 onClicked: {
-                    save_path_select.dialog.open();
+                    let m = check_input(input_start_time.text);
+                    if (!audio_path_select.selected_file) {
+                        msg.text = qsTr("请先选择需要添加的音频文件!");
+                        msg.open();
+                    } else if (m != "") {
+                        msg.text = m;
+                        msg.open();
+                    } else {
+                        save_path_select.dialog.open();
+                    }
                 }
             }
         }
@@ -184,19 +212,19 @@ Item {
         }
     }
 
+    Com.MsgDialog {
+        id: msg
+    }
+
     FileDialog {
         id: audio_path_select
         title: qsTr("选择需要添加的音频")
         fileMode: FileDialog.OpenFile
-        currentFile: {
-            let ext = get_extension(root.input_video_path);
-            if (ext !== '')
-                return "out." + ext;
-            return "out.mp3";
-        }
+        property bool selected_file: false
         currentFolder: StandardPaths.standardLocations(StandardPaths.MusicLocation)[0]
         nameFilters: [qsTr("音频文件 (*.mp3 *.wav *.aac *.flac *.ogg *.oga *.m4a *.wma *.opus *.ape *.ac3 *.eac3 *.dts *.amr *.aiff *.aif *.au *.ra *.mka *.tta *.wv *.caf *.dsf *.dff *.spx *.gsm *.voc *.mid *.midi *.pcm *.alac *.mp2 *.mp1 *.weba *.oga)"), qsTr("所有文件 (*)")]
         onAccepted: {
+            selected_file = true;
             list_data.append({
                 "name": audio_path_select.selectedFile.toString()
             });

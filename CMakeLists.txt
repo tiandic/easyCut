@@ -48,6 +48,7 @@ qt_add_qml_module(appeasyCut
         QML_FILES function/AddAudio.qml
         QML_FILES function/ExtractAllFrames.qml
         QML_FILES function/AddSubtitles.qml
+        QML_FILES common/MsgDialog.qml
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
