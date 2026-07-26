@@ -139,9 +139,9 @@ Item {
                         text: get_path_name(name)
                     }
 
-                    // Item {
-                    // Layout.fillWidth: true
-                    // }
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
                     ListView.onRemove: removeAnim.start()
                     ListView.delayRemove: removeAnim.running
