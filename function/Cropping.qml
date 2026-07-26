@@ -269,13 +269,13 @@ Item {
             // console.debug("input: ", input_x.text, input_y.text, input_w.text, input_h.text);
             // console.debug("rect: ", rect.rect_X, rect.rect_Y, rect.rect_X1 - rect.rect_X, rect.rect_Y1 - rect.rect_Y);
 
-            if (parseInt(input_x.text) != rect.rect_X && rect.mouse_pressed)
+            if (!input_x.hasFocus && parseInt(input_x.text) != rect.rect_X && rect.mouse_pressed)
                 input_x.text = cvt_rect_to_input_with_w(rect.rect_X);
-            if (parseInt(input_y.text) != rect.rect_Y && rect.mouse_pressed)
+            if (!input_y.hasFocus && parseInt(input_y.text) != rect.rect_Y && rect.mouse_pressed)
                 input_y.text = cvt_rect_to_input_with_h(rect.rect_Y);
-            if (parseInt(input_w.text) != rect.rect_X1 - rect.rect_X && rect.mouse_pressed)
+            if (!input_w.hasFocus && parseInt(input_w.text) != rect.rect_X1 - rect.rect_X && rect.mouse_pressed)
                 input_w.text = cvt_rect_to_input_with_w(rect.rect_X1 - rect.rect_X);
-            if (parseInt(input_h.text) != rect.rect_Y1 - rect.rect_Y && rect.mouse_pressed)
+            if (!input_h.hasFocus && parseInt(input_h.text) != rect.rect_Y1 - rect.rect_Y && rect.mouse_pressed)
                 input_h.text = cvt_rect_to_input_with_h(rect.rect_Y1 - rect.rect_Y);
         }
     }
