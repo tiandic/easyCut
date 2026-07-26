@@ -240,6 +240,11 @@ Item {
                 onContentRectChanged: rect.updateRect()
             }
 
+            onMouse_pressedChanged: {
+                if (mouse_pressed)
+                    focus_stealer.focus = true;
+            }
+
             // 避免选框超出边界
             onRect_XChanged: {
                 if (rect_X < 0)
@@ -315,6 +320,13 @@ Item {
 
     Com.MsgDialog {
         id: msg
+    }
+
+    Item {
+        id: focus_stealer
+        // 用于取消输入框的焦点
+        // 当使用鼠标与矩形交互时,输入框如果有焦点,则具有焦点的输入框将无法通过矩形更新实际值
+        focus: true
     }
 
     Ffmpeg_cmd {
