@@ -1,11 +1,14 @@
 #pragma once
 
+#include "QtNetwork/qlocalserver.h"
+#include "QtNetwork/qlocalsocket.h"
 #include "qcoreapplication.h"
 #include "qdebug.h"
 #include "qdir.h"
 #include "qfileinfo.h"
 #include "qlist.h"
 #include "qlogging.h"
+#include "qobject.h"
 #include "qprocess.h"
 #include "qtmetamacros.h"
 #include <QCoreApplication>
@@ -14,6 +17,7 @@
 #include <QStandardPaths>
 #include <QtQml>
 #include <ctime>
+#include <functional>
 
 #include "config.h"
 #include "qurl.h"
@@ -66,10 +70,11 @@ public:
     QFile::remove(path);
   }
 
-  Q_INVOKABLE void exec_ffmpeg() {
+  Q_INVOKABLE void exec_ffmpeg(QString rm_path = "") {
+    // rm_path 会在ffmpeg命令正常结束后被删除
     QString exec_path = get_exec_path();
     QString exec_gui_path = get_exec_gui_path();
-    QList<QString> argv = {exec_path, config.get_config_path()};
+    QList<QString> argv = {rm_path, exec_path, config.get_config_path()};
 
     if (exec_path == "")
       qCritical() << "Couldn’t find executable file exec_cmd.";
@@ -80,6 +85,7 @@ public:
   }
 
 private:
+  std::function<void()> callback = {};
   Config_file_ffmpeg_cmd config;
   QList<QString> tmp_files;
   QList<QString> exec_paths = {"exec_cmd", "exec_cmd.exe", "exec_cmd/exec_cmd",

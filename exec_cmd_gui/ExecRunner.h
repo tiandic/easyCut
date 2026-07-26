@@ -1,6 +1,7 @@
 #ifndef EXEC_RUNNER_H
 #define EXEC_RUNNER_H
 
+#include "QtNetwork/qlocalsocket.h"
 #include "qcoreapplication.h"
 #include <QObject>
 #include <QProcess>
@@ -20,15 +21,19 @@ public:
             [this] { append_output(process.readAllStandardError()); });
     connect(&process,
             QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
-            [](int exit_code) {
-              if (exit_code == 0)
+            [this](int exit_code) {
+              if (exit_code == 0) {
+                start_rm_file();
                 qApp->quit();
+              }
             });
   }
 
   Q_INVOKABLE void run(QString exec_path, QList<QString> argv) {
     process.start(exec_path, argv);
   }
+
+  Q_INVOKABLE void set_rm_file_path(QString path) { rm_file_path = path; }
 
   QString output() { return m_output; }
 
@@ -38,6 +43,13 @@ signals:
 private:
   QString m_output;
   QProcess process;
+  QString rm_file_path = "";
+
+  void start_rm_file() {
+    if (rm_file_path == "")
+      return;
+    QFile::remove(rm_file_path);
+  }
 
   void append_output(QByteArray o) {
     m_output += QString::fromLocal8Bit(o);

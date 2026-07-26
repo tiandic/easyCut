@@ -45,8 +45,6 @@ Item {
             return 'webvtt';
         }
 
-        // TODO: 其余容器(avi、flv、ts/mts/m2ts、mpg、wmv 等)普遍不支持软字幕流封装,
-        // 改用硬字幕烧录(-vf subtitles=xxx.srt)或先转封装到 mkv/mp4
         return null;
     }
 
@@ -240,7 +238,8 @@ Item {
                     for (let i = 0; i < list_data.count; i++)
                         subtitles_text += `${i + 1}\n${list_data.get(i).start_time} --> ${list_data.get(i).end_time}\n${list_data.get(i).subtitles}\n\n`;
 
-                    root.subtitles_file_path = cmd.echo_tmp_file("subtitles.srt", subtitles_text);
+                    root.subtitles_file_path = cmd.echo_tmp_file("subtitles.srt", subtitles_text, true);
+                    console.log(qsTr("创建了临时字幕文件:"), root.subtitles_file_path);
                     save_path_select.dialog.open();
                 }
             }
@@ -269,8 +268,8 @@ Item {
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${root.subtitles_file_path}" -c:s ${subtitle_codec} ${out_path}`);
             else
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "subtitles=${root.subtitles_file_path}" ${out_path}`);
-            cmd.exec_ffmpeg();
-        // cmd.rm_tmp_file(root.subtitles_file_path);
+            cmd.exec_ffmpeg(root.subtitles_file_path);
+            cmd.start_rm_tmp_file_server(root.subtitles_file_path);
         }
     }
 

@@ -29,6 +29,8 @@ ApplicationWindow {
         }
     }
     Component.onCompleted: {
-        runner.run(Qt.application.arguments[1], Qt.application.arguments.slice(2));
+        if (Qt.application.arguments[1] != "")
+            runner.set_rm_file_path(Qt.application.arguments[1]);
+        runner.run(Qt.application.arguments[2], Qt.application.arguments.slice(3));
     }
 }
