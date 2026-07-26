@@ -2,7 +2,9 @@
 #ifndef VIDEOPROVIDER_H
 #define VIDEOPROVIDER_H
 
+#include "qhashfunctions.h"
 #include "qlogging.h"
+#include "qtmetamacros.h"
 #include <QImage>
 #include <QObject>
 #include <QPainter>
@@ -12,7 +14,7 @@
 #include <QtMultimedia/QVideoSink>
 #include <QtQml>
 
-#include <libavutil/rational.h>
+#include <cerrno>
 #include <limits>
 #include <stdint.h>
 
@@ -21,11 +23,16 @@ extern "C" {
 #include <libavcodec/codec.h>
 #include <libavcodec/codec_par.h>
 #include <libavcodec/packet.h>
+#include <libavfilter/avfilter.h>
+#include <libavfilter/buffersink.h>
+#include <libavfilter/buffersrc.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 #include <libavutil/channel_layout.h>
 #include <libavutil/frame.h>
+#include <libavutil/mem.h>
 #include <libavutil/opt.h>
+#include <libavutil/rational.h>
 #include <libavutil/samplefmt.h>
 #include <libswresample/swresample.h>
 #include <libswscale/swscale.h>
@@ -158,6 +165,12 @@ public:
 
   AVFrame *get_a_frame_video() {
     AVPacket *pack;
+    AVFrame *buffersink_frame;
+
+    if (filter_graph != nullptr &&
+        (buffersink_frame = get_a_frame_from_buffersink()) != nullptr)
+      return buffersink_frame;
+
     while (avcodec_receive_frame(codec_ctx_video, frame_video) != 0) {
       while (video_packets_queue.isEmpty()) {
         if (demux() == nullptr)
@@ -174,11 +187,21 @@ public:
       av_packet_free(&pack);
     }
 
-    // dumpAVFrame(frame_video);
-
     progress_time = av_rescale_q(
         frame_video->best_effort_timestamp,
         fmt_ctx->streams[video_stream_index]->time_base, (AVRational){1, 100});
+
+    // dumpAVFrame(frame_video);
+    if (filter_graph != nullptr) {
+      int ret = av_buffersrc_add_frame_flags(buffersrc_ctx, frame_video,
+                                             AV_BUFFERSRC_FLAG_KEEP_REF);
+      if (ret < 0) {
+        return nullptr;
+      }
+      AVFrame *tmp_frame = get_a_frame_from_buffersink();
+      av_frame_unref(frame_video);
+      return tmp_frame;
+    }
 
     return frame_video;
   }
@@ -302,6 +325,67 @@ public:
     return image;
   }
 
+  int init_filters(const char *filters_descr) {
+    if (filter_graph != nullptr)
+      uninit_filters();
+
+    int ret = 0;
+
+    filter_graph = avfilter_graph_alloc();
+    AVFilterInOut *outputs = avfilter_inout_alloc();
+    AVFilterInOut *inputs = avfilter_inout_alloc();
+    const AVFilter *buffersrc = avfilter_get_by_name("buffer");
+    const AVFilter *buffersink = avfilter_get_by_name("buffersink");
+
+    AVRational time_base = fmt_ctx->streams[video_stream_index]->time_base;
+
+    QString args =
+        QString(
+            "video_size=%1x%2:pix_fmt=%3:time_base=%4/%5:pixel_aspect=%6/%7")
+            .arg(codec_ctx_video->width)
+            .arg(codec_ctx_video->height)
+            .arg(codec_ctx_video->pix_fmt)
+            .arg(time_base.num)
+            .arg(time_base.den)
+            .arg(codec_ctx_video->sample_aspect_ratio.num)
+            .arg(codec_ctx_video->sample_aspect_ratio.den);
+
+    avfilter_graph_create_filter(&buffersrc_ctx, buffersrc, "in",
+                                 args.toStdString().c_str(), NULL,
+                                 filter_graph);
+    avfilter_graph_create_filter(&buffersink_ctx, buffersink, "out", NULL, NULL,
+                                 filter_graph);
+    outputs->name = av_strdup("in");
+    outputs->filter_ctx = buffersrc_ctx;
+    outputs->pad_idx = 0;
+    outputs->next = NULL;
+    inputs->name = av_strdup("out");
+    inputs->filter_ctx = buffersink_ctx;
+    inputs->pad_idx = 0;
+    inputs->next = NULL;
+
+    if ((ret = avfilter_graph_parse_ptr(filter_graph, filters_descr, &inputs,
+                                        &outputs, NULL)) < 0) {
+      avfilter_inout_free(&inputs);
+      avfilter_inout_free(&outputs);
+      return ret;
+    }
+    if ((ret = avfilter_graph_config(filter_graph, NULL)) < 0) {
+      avfilter_inout_free(&inputs);
+      avfilter_inout_free(&outputs);
+      return ret;
+    }
+
+    return ret;
+  }
+
+  void uninit_filters() {
+    avfilter_graph_free(&filter_graph);
+    filter_graph = nullptr;
+    buffersrc_ctx = nullptr;
+    buffersink_ctx = nullptr;
+  }
+
   ~Ffmpeg_frame() {
     avcodec_send_packet(codec_ctx_video, nullptr);
     avcodec_receive_frame(codec_ctx_video, frame_video);
@@ -325,6 +409,18 @@ private:
   QQueue<AVPacket *> video_packets_queue;
   QQueue<AVPacket *> audio_packets_queue;
   QMutex queue_mutex;
+
+  AVFilterGraph *filter_graph = nullptr;
+  AVFilterContext *buffersrc_ctx = nullptr;
+  AVFilterContext *buffersink_ctx = nullptr;
+
+  AVFrame *get_a_frame_from_buffersink() {
+    AVFrame *ret_frame = av_frame_alloc();
+    int ret = av_buffersink_get_frame(buffersink_ctx, ret_frame);
+    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+      return nullptr;
+    return ret_frame;
+  }
 
   void dumpAVFrame(AVFrame *frame) {
     if (!frame) {
@@ -564,6 +660,10 @@ public:
       m_videoPath = p;
       emit videoPathChanged();
     }
+  }
+
+  Q_INVOKABLE int init_filters(QString filter_descr) {
+    return ffmpeg_frame->init_filters(filter_descr.toStdString().c_str());
   }
 
   Q_INVOKABLE bool init_video() {

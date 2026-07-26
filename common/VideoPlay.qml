@@ -11,6 +11,7 @@ Item {
     property var last_ms: Date.now()
 
     property var videooutput: videoOutput
+    property var video_provider: videoProvider
     property int video_width: videoProvider.videoWidth
     property int video_height: videoProvider.videoHeight
 

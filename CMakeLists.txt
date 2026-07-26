@@ -17,6 +17,7 @@ pkg_check_modules(FFMPEG
     libswscale
     libavutil
     libswresample
+    libavfilter
 )
 
 qt_standard_project_setup(REQUIRES 6.10)

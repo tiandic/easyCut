@@ -61,6 +61,18 @@ public:
     return QString();
   }
 
+  Q_INVOKABLE void over_write_file(QString file_path, QString text) {
+    if (!tmp_files.contains(file_path))
+      return;
+    QFile file(file_path);
+    if (file.open(QIODevice::WriteOnly)) {
+      QTextStream out(&file);
+      out.setEncoding(QStringConverter::Utf8);
+      out << text;
+      file.close();
+    }
+  }
+
   Q_INVOKABLE void rm_tmp_file(QString path) {
     // 删除临时文件,根据路径删除
     // 只有通过 echo_tmp_file() 创建的文件才能通过该函数删除

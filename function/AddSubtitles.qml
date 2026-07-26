@@ -22,6 +22,24 @@ Item {
                 if (sort_data())
                     break;
             }
+            sync_subtitles_file();
+        }
+
+        function sync_subtitles_file() {
+            let subtitles_text = "";
+
+            for (let i = 0; i < list_data.count; i++)
+                subtitles_text += `${i + 1}\n${list_data.get(i).start_time} --> ${list_data.get(i).end_time}\n${list_data.get(i).subtitles}\n\n`;
+
+            if (subtitles_file_path == "") {
+                root.subtitles_file_path = cmd.echo_tmp_file("subtitles.srt", subtitles_text, true);
+                console.log(qsTr("创建了临时字幕文件:"), root.subtitles_file_path);
+            } else {
+                cmd.over_write_file(root.subtitles_file_path, subtitles_text);
+            }
+            videoPlay.video_provider.init_filters(`subtitles=${root.subtitles_file_path}`);
+            videoPlay.video_provider.seek(videoPlay.video_provider.progressTime);
+            videoPlay.video_provider.show_a_frame();
         }
 
         function sort_data() {
@@ -253,13 +271,6 @@ Item {
                 Layout.fillWidth: true
                 text_: qsTr("添加完成")
                 onClicked: {
-                    let subtitles_text = "";
-
-                    for (let i = 0; i < list_data.count; i++)
-                        subtitles_text += `${i + 1}\n${list_data.get(i).start_time} --> ${list_data.get(i).end_time}\n${list_data.get(i).subtitles}\n\n`;
-
-                    root.subtitles_file_path = cmd.echo_tmp_file("subtitles.srt", subtitles_text, true);
-                    console.log(qsTr("创建了临时字幕文件:"), root.subtitles_file_path);
                     save_path_select.dialog.open();
                 }
             }
