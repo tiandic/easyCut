@@ -11,6 +11,23 @@ Item {
     property string video_path: ""
     property var stackView
 
+    function check_input(text) {
+        let l;
+        if (text == "")
+            return qsTr("输入不可为空!");
+        else if (!(l = check_limit(text, "1234567890"))[0])
+            return qsTr(`输入不应包含字符 '${l[1]}'`);
+        return "";
+    }
+
+    function check_limit(text, limit_chars) {
+        for (let i = 0; i < text.length; i++) {
+            if (limit_chars.indexOf(text[i]) == -1)
+                return [false, text[i]];
+        }
+        return [true, ""];
+    }
+
     function cvt_rect_to_input_with_w(num) {
         // console.debug("video_width: ", videoPlay.video_width);
         // console.debug("rect width: ", rect.width);
@@ -155,7 +172,21 @@ Item {
             Layout.fillWidth: true
             text_: qsTr("确认")
             onClicked: {
-                save_path_select.dialog.open();
+                let m;
+                if ((m = check_input(input_x)) != "") {
+                    msg.text = m;
+                    msg.open();
+                } else if (cvt_input_to_rect_with_h(parseInt(input_x.text)) > videoPlay.video_width) {
+                    msg.text = qsTr(`矩形 x 坐标过大! 视频宽度为: ${videoPlay.video_width}`);
+                } else if (cvt_input_to_rect_with_w(parseInt(input_y.text)) > videoPlay.video_height) {
+                    msg.text = qsTr(`矩形 y 坐标过大! 视频高度为: ${videoPlay.video_height}`);
+                } else if (cvt_input_to_rect_with_h(parseInt(input_h.text)) > videoPlay.video_height) {
+                    msg.text = qsTr(`矩形过高! 视频高度为: ${videoPlay.video_height}`);
+                } else if (cvt_input_to_rect_with_w(parseInt(input_w.text)) > videoPlay.video_width) {
+                    msg.text = qsTr(`矩形过宽! 视频宽度为: ${videoPlay.video_width}`);
+                } else {
+                    save_path_select.dialog.open();
+                }
             }
         }
         Item {
@@ -281,6 +312,10 @@ Item {
     }
 
     onVideo_pathChanged: videoPlay.video_path = video_path
+
+    Com.MsgDialog {
+        id: msg
+    }
 
     Ffmpeg_cmd {
         id: cmd
