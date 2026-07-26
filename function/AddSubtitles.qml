@@ -17,6 +17,22 @@ Item {
 
     ListModel {
         id: list_data
+        onCountChanged: {
+            while (true) {
+                if (sort_data())
+                    break;
+            }
+        }
+
+        function sort_data() {
+            for (let i = 1; i < list_data.count; i++) {
+                if (list_data.get(i - 1).start_time > list_data.get(i).start_time) {
+                    list_data.move(i - 1, i, 1);
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     function get_extension(filename) {
