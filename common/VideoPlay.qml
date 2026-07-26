@@ -6,7 +6,6 @@ import QtMultimedia
 import "../common" as Com
 
 Item {
-
     property string video_path: ""
     onVideo_pathChanged: videoProvider.videoPath = video_path
     property var last_ms: Date.now()
@@ -14,6 +13,9 @@ Item {
     property var videooutput: videoOutput
     property int video_width: videoProvider.videoWidth
     property int video_height: videoProvider.videoHeight
+
+    property string playing_icon: "▶"
+    property string pausing_icon: "⏸"
 
     Item {
         id: screen
@@ -45,17 +47,25 @@ Item {
                 console.log("视频画面位置:", contentRect.x, contentRect.y);
                 console.log("视频画面尺寸:", contentRect.width, contentRect.height);
             }
+            MouseArea {
+                x: parent.contentRect.x
+                y: parent.contentRect.y
+                width: parent.contentRect.width
+                height: parent.contentRect.height
+                onClicked: {
+                    if (videoProvider.videoPlaying) {
+                        videoProvider.stop();
+                        play_button.text_ = playing_icon;
+                    } else {
+                        videoProvider.start();
+                        play_button.text_ = pausing_icon;
+                    }
+                }
+            }
         }
 
         AudioOutput {
             id: audioOutput
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                videoProvider.videoPlaying ? videoProvider.stop() : videoProvider.start();
-            }
         }
     }
 
@@ -166,6 +176,7 @@ Item {
         RowLayout {
             spacing: 10
             Com.Button {
+                id: play_button
                 Layout.preferredWidth: 40
                 Layout.preferredHeight: Layout.preferredWidth
                 radius: Layout.preferredHeight / 2
@@ -174,10 +185,10 @@ Item {
                 onClicked: {
                     if (videoProvider.videoPlaying) {
                         videoProvider.stop();
-                        text_ = "▶";
+                        text_ = playing_icon;
                     } else {
                         videoProvider.start();
-                        text_ = "⏸";
+                        text_ = pausing_icon;
                     }
                 }
             }
