@@ -7,6 +7,47 @@ Item {
     id: root
     property string video_path: ""
     property var stackView
+
+    function check_input(text) {
+        let l;
+        if (text == "")
+            return qsTr("输入不可为空!");
+        else if (text.split(',') > 2)
+            return qsTr("输入最多只能有一个逗号!");
+        else if (!(l = check_limit(text, "1234567890,:"))[0])
+            return qsTr(`输入不应包含字符 '${l[1]}'`);
+        return "";
+    }
+
+    function check_limit(text, limit_chars) {
+        for (let i = 0; i < text.length; i++) {
+            if (limit_chars.indexOf(text[i]) == -1)
+                return [false, text[i]];
+        }
+        return [true, ""];
+    }
+
+    function cvt_time_to_ms(t) {
+        // 转换标准时间格式为毫秒数
+        // 支持如下格式:
+        // 4:11:40 or 4:11:40,560 or 11:11 or 11:11,700 or 12,560 or 4 (只输入一个数字默认为秒)
+        let ms = 0;
+        let i; // 计算到了第几位
+
+        if (t.indexOf(',') != -1) {
+            let t_and_ms = t.split(",");
+            t = t_and_ms[0];
+            ms = parseInt(t_and_ms[1]);
+        }
+        for (i = 0; (i <= 2 && t.indexOf(':') != -1); i++) {
+            let t2_list = t.split(":");
+            ms += parseInt(t2_list.pop()) * (60 ** i) * 1000;
+            t = t2_list.join(':');
+        }
+        ms += parseInt(t) * (60 ** i) * 1000;
+        return ms;
+    }
+
     ColumnLayout {
         id: input
         anchors.top: parent.top
@@ -59,7 +100,22 @@ Item {
             Layout.fillWidth: true
             text_: qsTr("确认")
             onClicked: {
-                save_path_select.dialog.open();
+                let m;
+                if ((m = check_input(input_start.text)) != "") {
+                    msg.text = qsTr("开始时间格式错误: ") + m;
+                    msg.open();
+                } else if ((m = check_input(input_end.text)) != "") {
+                    msg.text = qsTr("结束时间格式错误: ") + m;
+                    msg.open();
+                } else if (cvt_time_to_ms(input_start.text) > cvt_time_to_ms(input_end.text)) {
+                    msg.text = qsTr("开始时间不能大于结束时间!");
+                    msg.open();
+                } else if (cvt_time_to_ms(input_start.text) == cvt_time_to_ms(input_end.text)) {
+                    msg.text = qsTr("开始时间不能等于结束时间!");
+                    msg.open();
+                } else {
+                    save_path_select.dialog.open();
+                }
             }
         }
         Item {
@@ -88,6 +144,10 @@ Item {
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -ss ${input_start.text} -to ${input_end.text} "${out_path}"`);
             cmd.exec_ffmpeg();
         }
+    }
+
+    Com.MsgDialog {
+        id: msg
     }
 
     Ffmpeg_cmd {
