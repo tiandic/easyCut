@@ -44,7 +44,7 @@ Item {
         Com.LabelInput2 {
             id: input_format
             Layout.fillWidth: true
-            label: "输出格式"
+            label: qsTr("输出格式")
 
             text: "frame_%06d.png"
         }

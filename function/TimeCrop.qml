@@ -44,14 +44,14 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 label: qsTr("开始时间")
-                placeholder: qsTr("00:10:54")
+                placeholder: "00:10:54"
             }
             Com.LabelInput2 {
                 id: input_end
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 label: qsTr("结束时间")
-                placeholder: qsTr("00:15:04")
+                placeholder: "00:15:04"
             }
         }
 

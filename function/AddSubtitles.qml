@@ -45,7 +45,7 @@ Item {
             return 'webvtt';
         }
 
-        // 其余容器(avi、flv、ts/mts/m2ts、mpg、wmv 等)普遍不支持软字幕流封装,
+        // TODO: 其余容器(avi、flv、ts/mts/m2ts、mpg、wmv 等)普遍不支持软字幕流封装,
         // 改用硬字幕烧录(-vf subtitles=xxx.srt)或先转封装到 mkv/mp4
         return null;
     }

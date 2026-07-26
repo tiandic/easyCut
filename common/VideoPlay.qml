@@ -44,8 +44,8 @@ Item {
             id: videoOutput
             anchors.fill: parent
             onContentRectChanged: {
-                console.log("视频画面位置:", contentRect.x, contentRect.y);
-                console.log("视频画面尺寸:", contentRect.width, contentRect.height);
+                console.log(qsTr("视频画面位置:"), contentRect.x, contentRect.y);
+                console.log(qsTr("视频画面尺寸:"), contentRect.width, contentRect.height);
             }
             MouseArea {
                 x: parent.contentRect.x
@@ -195,7 +195,7 @@ Item {
 
             Com.LabelInput2 {
                 id: input_progress
-                label: "进度"
+                label: qsTr("进度")
                 Layout.preferredWidth: 95
                 text: ""
                 onSubmitted: {
