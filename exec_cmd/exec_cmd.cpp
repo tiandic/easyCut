@@ -19,13 +19,15 @@ int main(int argc, char *argv[]) {
   ret = WEXITSTATUS(ret);
 #endif
 
-  // 删除已经执行了的行
-  std::stringstream buf;
-  buf << f.rdbuf();
-  f.close();
+  if (ret == 0) {
+    // ffmpeg正常处理完毕后, 删除已经执行了的行
+    std::stringstream buf;
+    buf << f.rdbuf();
+    f.close();
 
-  std::ofstream f2(argv[1]);
-  f2 << buf.str();
+    std::ofstream f2(argv[1]);
+    f2 << buf.str();
+  }
 
   return ret;
 }
