@@ -15,6 +15,29 @@ Item {
     property string default_start_time: "00:00:00,000"
     property string default_end_time: "00:00:04,000"
 
+    function check_input(text) {
+        let l;
+        if (text == "")
+            return qsTr("输入不可为空!");
+        else if (text.split(',') > 2)
+            return qsTr("输入必须有且只有一个逗号!");
+        else if (!(l = check_limit(text, "1234567890,:"))[0])
+            return qsTr(`输入不应包含字符 '${l[1]}'`);
+        else if (text.length < default_start_time.length)
+            return qsTr(`输入长度过短! 正确长度应为 ${default_start_time.length}`);
+        else if (text.length > default_start_time.length)
+            return qsTr(`输入长度过长! 正确长度应为 ${default_start_time.length}`);
+        return "";
+    }
+
+    function check_limit(text, limit_chars) {
+        for (let i = 0; i < text.length; i++) {
+            if (limit_chars.indexOf(text[i]) == -1)
+                return [false, text[i]];
+        }
+        return [true, ""];
+    }
+
     ListModel {
         id: list_data
         onCountChanged: {
@@ -254,14 +277,29 @@ Item {
                 Layout.fillWidth: true
                 text_: qsTr("确认添加")
                 onClicked: {
-                    list_data.append({
-                        "start_time": input_start.text,
-                        "end_time": input_end.text,
-                        "subtitles": input_subtitles.text
-                    });
-                    input_start.text = input_end.text;
-                    input_end.text = input_start.text;
-                    input_subtitles.text = "";
+                    let m;
+                    if ((m = check_input(input_start.text)) != "") {
+                        msg.text = qsTr("字幕的开始时间格式错误: ") + m;
+                        msg.open();
+                    } else if ((m = check_input(input_end.text)) != "") {
+                        msg.text = qsTr("字幕的结束时间格式错误: ") + m;
+                        msg.open();
+                    } else if (input_start.text == input_end.text) {
+                        msg.text = qsTr("字幕的开始时间与结束时间不能相同!");
+                        msg.open();
+                    } else if (input_subtitles.text == "") {
+                        msg.text = qsTr("添加的字幕不应为空!");
+                        msg.open();
+                    } else {
+                        list_data.append({
+                            "start_time": input_start.text,
+                            "end_time": input_end.text,
+                            "subtitles": input_subtitles.text
+                        });
+                        input_start.text = input_end.text;
+                        input_end.text = input_start.text;
+                        input_subtitles.text = "";
+                    }
                 }
             }
             Item {
@@ -271,7 +309,12 @@ Item {
                 Layout.fillWidth: true
                 text_: qsTr("添加完成")
                 onClicked: {
-                    save_path_select.dialog.open();
+                    if (list_data.count == 0) {
+                        msg.text = qsTr("至少应添加一条字幕!");
+                        msg.open();
+                    } else {
+                        save_path_select.dialog.open();
+                    }
                 }
             }
         }
@@ -301,6 +344,10 @@ Item {
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "subtitles=${root.subtitles_file_path}" ${out_path}`);
             cmd.exec_ffmpeg(root.subtitles_file_path);
         }
+    }
+
+    Com.MsgDialog {
+        id: msg
     }
 
     Ffmpeg_cmd {
