@@ -203,7 +203,7 @@ Item {
             Com.LabelInput2 {
                 id: input_progress
                 label: qsTr("进度")
-                Layout.preferredWidth: 95
+                Layout.preferredWidth: 110
                 text: ""
                 onSubmitted: {
                     let m_and_s = text.split(":");
