@@ -228,7 +228,7 @@ Item {
                     }
 
                     Com.Button {
-                        Layout.preferredHeight: parent.height / 1.5
+                        Layout.preferredHeight: 26.66
                         Layout.preferredWidth: Layout.preferredHeight + 5
                         Layout.alignment: Qt.AlignRight
                         text_: qsTr("X")
@@ -283,10 +283,10 @@ Item {
                 text_: qsTr("确认添加")
                 onClicked: {
                     let m;
-                    if ((m = check_input(input_start.text)) != "") {
+                    if ((m = root.check_input(input_start.text)) != "") {
                         msg.text = qsTr("字幕的开始时间格式错误: ") + m;
                         msg.open();
-                    } else if ((m = check_input(input_end.text)) != "") {
+                    } else if ((m = root.check_input(input_end.text)) != "") {
                         msg.text = qsTr("字幕的结束时间格式错误: ") + m;
                         msg.open();
                     } else if (input_start.text == input_end.text) {
@@ -342,7 +342,7 @@ Item {
         id: save_path_select
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
-            let subtitle_codec = get_subtitle_codec(get_extension(out_path));
+            let subtitle_codec = root.get_subtitle_codec(root.get_extension(out_path));
             if (subtitle_codec)
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${root.subtitles_file_path}" -c:s ${subtitle_codec} ${out_path}`);
             else
