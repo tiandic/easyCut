@@ -17,7 +17,7 @@ Item {
     property int video_height: videoProvider.videoHeight
 
     property string playing_icon: "▶"
-    property string pausing_icon: "⏸"
+    property string pausing_icon: "||"
 
     property bool need_toggle_play_status: false // 当被设置为 true 时,会触发播放状态切换
 
