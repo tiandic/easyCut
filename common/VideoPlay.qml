@@ -22,13 +22,10 @@ Item {
     property bool need_toggle_play_status: false // 当被设置为 true 时,会触发播放状态切换
 
     function toggle_play_status() {
-        if (videoProvider.videoPlaying) {
+        if (videoProvider.videoPlaying)
             videoProvider.stop();
-            play_button.text_ = playing_icon;
-        } else {
+        else
             videoProvider.start();
-            play_button.text_ = pausing_icon;
-        }
     }
 
     onNeed_toggle_play_statusChanged: {
@@ -58,6 +55,12 @@ Item {
                     videoProvider.init_and_show();
                     slider.to = videoProvider.get_total_time() / 100;
                 }
+            }
+            onVideoPlayingChanged: {
+                if (videoProvider.videoPlaying)
+                    play_button.text_ = root.pausing_icon;
+                else
+                    play_button.text_ = root.playing_icon;
             }
         }
 

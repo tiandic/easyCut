@@ -180,7 +180,7 @@ public:
       pack = video_packets_queue.dequeue();
 
       if (pack->data == NULL || pack->size <= 0) {
-        qDebug() << "apck error in pts: " << pack->pts;
+        qDebug() << "pack error in pts: " << pack->pts;
       }
 
       avcodec_send_packet(codec_ctx_video, pack);
@@ -327,7 +327,7 @@ public:
 
   int init_filters(const char *filters_descr) {
     if (filter_graph != nullptr)
-      uninit_filters();
+      remove_filters();
 
     int ret = 0;
 
@@ -379,7 +379,7 @@ public:
     return ret;
   }
 
-  void uninit_filters() {
+  void remove_filters() {
     avfilter_graph_free(&filter_graph);
     filter_graph = nullptr;
     buffersrc_ctx = nullptr;
@@ -597,7 +597,7 @@ class VideoProvider : public QObject {
                  videoSinkChanged)
   Q_PROPERTY(QString videoPath READ videoPath WRITE setVideoPath NOTIFY
                  videoPathChanged)
-  Q_PROPERTY(bool videoPlaying READ videoPlaying)
+  Q_PROPERTY(bool videoPlaying READ videoPlaying NOTIFY videoPlayingChanged)
   Q_PROPERTY(int videoWidth READ videoWidth)
   Q_PROPERTY(int videoHeight READ videoHeight)
   Q_PROPERTY(int progressTime READ progressTime)
@@ -633,11 +633,18 @@ public:
     }
   }
 
+  void setVideoPlaying(bool status) {
+    if (m_videoPlaying != status) {
+      m_videoPlaying = status;
+      emit videoPlayingChanged();
+    }
+  }
+
   Q_INVOKABLE int init_filters(QString filter_descr) {
     return ffmpeg_frame->init_filters(filter_descr.toStdString().c_str());
   }
 
-  Q_INVOKABLE void remove_filters() { ffmpeg_frame->uninit_filters(); }
+  Q_INVOKABLE void remove_filters() { ffmpeg_frame->remove_filters(); }
 
   Q_INVOKABLE bool init_video() {
     if (m_videoPath != nullptr && ffmpeg_frame == nullptr) {
@@ -671,7 +678,7 @@ public:
 
     if (ffmpeg_frame != nullptr) {
       qDebug() << "start video";
-      m_videoPlaying = true;
+      setVideoPlaying(true);
       m_audio_sink->resume();
       show_video();
     }
@@ -679,7 +686,7 @@ public:
 
   Q_INVOKABLE void stop() {
     qDebug() << "enter func stop()";
-    m_videoPlaying = false;
+    setVideoPlaying(false);
     QMutexLocker locker(&video_play_mutex); // 确保视频暂停完成
     m_audio_sink->suspend();
   }
@@ -711,14 +718,17 @@ public:
 signals:
   void videoSinkChanged();
   void videoPathChanged();
+  void videoPlayingChanged();
   void videoOKed();
 
 public slots:
   void show_video_thread() {
     QMutexLocker locker(&video_play_mutex);
     AVFrame *frn = ffmpeg_frame->get_a_frame_video();
-    if (frn == nullptr)
+    if (frn == nullptr) {
+      setVideoPlaying(false);
       return;
+    }
     qint64 video_pts =
         av_rescale_q(frn->best_effort_timestamp, video_steam_base_time,
                      audio_steam_base_time);
@@ -735,6 +745,10 @@ public slots:
       generateFrame(frn);
       av_frame_unref(frn);
       frn = ffmpeg_frame->get_a_frame_video();
+      if (frn == nullptr) {
+        setVideoPlaying(false);
+        return;
+      }
       video_pts = av_rescale_q(frn->best_effort_timestamp,
                                video_steam_base_time, audio_steam_base_time);
     }
