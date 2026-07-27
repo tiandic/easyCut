@@ -50,7 +50,11 @@ make install
 
 ```
 # msys2 mingw
-pacman -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-qt6-declarative mingw-w64-x86_64-qt6-multimedia mingw-w64-x86_64-ffmpeg
+pacman -S mingw-w64-x86_64-toolchain
+pacman -S mingw-w64-x86_64-cmake
+pacman -S mingw-w64-x86_64-qt6-declarative
+pacman -S mingw-w64-x86_64-qt6-multimedia
+pacman -S mingw-w64-x86_64-ffmpeg
 ```
 
 ```
