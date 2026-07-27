@@ -47,7 +47,7 @@ Item {
             }
             sync_subtitles_file();
             if (count > 0) {
-                videoPlay.video_provider.init_filters(`subtitles=${root.subtitles_file_path}`);
+                videoPlay.video_provider.init_filters(`subtitles=${root.subtitles_file_path.replace(":", "\\\\:")}`);
                 videoPlay.video_provider.seek(Math.max(0, videoPlay.video_provider.progressTime - 3));
                 videoPlay.video_provider.show_a_frame();
             } else {
