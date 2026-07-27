@@ -46,6 +46,15 @@ Item {
                     break;
             }
             sync_subtitles_file();
+            if (count > 0) {
+                videoPlay.video_provider.init_filters(`subtitles=${root.subtitles_file_path}`);
+                videoPlay.video_provider.seek(Math.max(0, videoPlay.video_provider.progressTime - 3));
+                videoPlay.video_provider.show_a_frame();
+            } else {
+                videoPlay.video_provider.remove_filters();
+                videoPlay.video_provider.seek(Math.max(0, videoPlay.video_provider.progressTime - 3));
+                videoPlay.video_provider.show_a_frame();
+            }
         }
 
         function sync_subtitles_file() {
@@ -60,9 +69,6 @@ Item {
             } else {
                 cmd.over_write_file(root.subtitles_file_path, subtitles_text);
             }
-            videoPlay.video_provider.init_filters(`subtitles=${root.subtitles_file_path}`);
-            videoPlay.video_provider.seek(videoPlay.video_provider.progressTime);
-            videoPlay.video_provider.show_a_frame();
         }
 
         function sort_data() {

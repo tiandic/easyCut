@@ -637,6 +637,8 @@ public:
     return ffmpeg_frame->init_filters(filter_descr.toStdString().c_str());
   }
 
+  Q_INVOKABLE void remove_filters() { ffmpeg_frame->uninit_filters(); }
+
   Q_INVOKABLE bool init_video() {
     if (m_videoPath != nullptr && ffmpeg_frame == nullptr) {
       qDebug() << "new Ffmpeg_frame(\"" << m_videoPath << "\")";
