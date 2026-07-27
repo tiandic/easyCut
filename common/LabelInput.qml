@@ -70,6 +70,12 @@ Item {
                 background: Item {}
                 selectByMouse: true
 
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Escape) {
+                        focus = false;
+                    }
+                }
+
                 onTextChanged: Qt.callLater(function () {
                     if (root.maxLength > 0 && field.text.length > root.maxLength) {
                         field.text = field.text.substring(0, root.maxLength);
