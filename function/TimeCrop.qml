@@ -67,7 +67,7 @@ Item {
             }
             Com.Button {
                 text_: qsTr("← 返回")
-                onClicked: stackView.pop()
+                onClicked: root.stackView.pop()
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 30
             }
@@ -101,16 +101,16 @@ Item {
             text_: qsTr("确认")
             onClicked: {
                 let m;
-                if ((m = check_input(input_start.text)) != "") {
+                if ((m = root.check_input(input_start.text)) != "") {
                     msg.text = qsTr("开始时间格式错误: ") + m;
                     msg.open();
-                } else if ((m = check_input(input_end.text)) != "") {
+                } else if ((m = root.check_input(input_end.text)) != "") {
                     msg.text = qsTr("结束时间格式错误: ") + m;
                     msg.open();
-                } else if (cvt_time_to_ms(input_start.text) > cvt_time_to_ms(input_end.text)) {
+                } else if (root.cvt_time_to_ms(input_start.text) > root.cvt_time_to_ms(input_end.text)) {
                     msg.text = qsTr("开始时间不能大于结束时间!");
                     msg.open();
-                } else if (cvt_time_to_ms(input_start.text) == cvt_time_to_ms(input_end.text)) {
+                } else if (root.cvt_time_to_ms(input_start.text) == root.cvt_time_to_ms(input_end.text)) {
                     msg.text = qsTr("开始时间不能等于结束时间!");
                     msg.open();
                 } else {

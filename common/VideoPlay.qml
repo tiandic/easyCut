@@ -6,6 +6,7 @@ import QtMultimedia
 import "../common" as Com
 
 Item {
+    id: root
     property string video_path: ""
     onVideo_pathChanged: videoProvider.videoPath = video_path
     property var last_ms: Date.now()
@@ -73,7 +74,7 @@ Item {
                 width: parent.contentRect.width
                 height: parent.contentRect.height
                 onClicked: {
-                    toggle_play_status();
+                    root.toggle_play_status();
                 }
             }
         }
@@ -108,8 +109,8 @@ Item {
 
                 // TODO: 优化拖动时的反馈
                 // 避免拖动进度条时卡死
-                if (Date.now() - last_ms < 500) {
-                    last_ms = Date.now();
+                if (Date.now() - root.last_ms < 500) {
+                    root.last_ms = Date.now();
                     return;
                 }
 
@@ -195,7 +196,7 @@ Item {
 
                 text_: "▶"
                 onClicked: {
-                    toggle_play_status();
+                    root.toggle_play_status();
                 }
             }
 

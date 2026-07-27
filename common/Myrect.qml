@@ -50,12 +50,12 @@ Item {
             var ctx = getContext("2d");
             ctx.clearRect(0, 0, myrect_root.width, myrect_root.height);
             ctx.beginPath();
-            ctx.lineWidth = rectlinewidth;
-            if (clr == null)
+            ctx.lineWidth = myrect.rectlinewidth;
+            if (myrect.clr == null)
                 ctx.strokeStyle = "green";
             else
-                ctx.strokeStyle = clr;
-            ctx.rect(rect_X, rect_Y, (rect_X1 - rect_X), (rect_Y1 - rect_Y));
+                ctx.strokeStyle = myrect.clr;
+            ctx.rect(myrect.rect_X, myrect.rect_Y, (myrect.rect_X1 - myrect.rect_X), (myrect.rect_Y1 - myrect.rect_Y));
             ctx.stroke();
         }
     }
@@ -84,59 +84,59 @@ Item {
             myrect.mouse_pressed = true;
 
             // 中间
-            if ((!down && !down2 && !down3 && !down4) && ((down5) || (mouseX > rect_X && mouseX < rect_X1 && mouseY > rect_Y && mouseY < rect_Y1))) {
+            if ((!down && !down2 && !down3 && !down4) && ((down5) || (mouseX > myrect.rect_X && mouseX < myrect.rect_X1 && mouseY > myrect.rect_Y && mouseY < myrect.rect_Y1))) {
                 if (pressed) {
                     down5 = true;
                     if (x_eren == 0 && y_eren == 0 && x_eren2 == 0 && y_eren2 == 0) {
                         // 刚刚按下时,记录在中间按下后鼠标与矩形两个坐标的差值,以移动矩形
-                        x_eren = mouseX - rect_X;
-                        y_eren = mouseY - rect_Y;
-                        x_eren2 = rect_X1 - mouseX;
-                        y_eren2 = rect_Y1 - mouseY;
+                        x_eren = mouseX - myrect.rect_X;
+                        y_eren = mouseY - myrect.rect_Y;
+                        x_eren2 = myrect.rect_X1 - mouseX;
+                        y_eren2 = myrect.rect_Y1 - mouseY;
                     }
 
-                    rect_X = mouseX - x_eren;
-                    rect_Y = mouseY - y_eren;
-                    rect_X1 = mouseX + x_eren2;
-                    rect_Y1 = mouseY + y_eren2;
+                    myrect.rect_X = mouseX - x_eren;
+                    myrect.rect_Y = mouseY - y_eren;
+                    myrect.rect_X1 = mouseX + x_eren2;
+                    myrect.rect_Y1 = mouseY + y_eren2;
                 } else {
                     cursorShape = Qt.OpenHandCursor;
                 }
             } else
             // 左边
-            if ((down) || (Math.abs(mouseX - rect_X) < devi && mouseY > rect_Y && mouseY < rect_Y1)) {
+            if ((down) || (Math.abs(mouseX - myrect.rect_X) < devi && mouseY > myrect.rect_Y && mouseY < myrect.rect_Y1)) {
                 cursorShape = Qt.SizeHorCursor;
                 if (pressed) {
                     // 按下后才开始调整矩形
                     down = true;
-                    rect_X = mouseX;
+                    myrect.rect_X = mouseX;
                 }
             } else
             // 上边
-            if ((down2) || (Math.abs(mouseY - rect_Y) < devi && mouseX > rect_X && mouseX < rect_X1)) {
+            if ((down2) || (Math.abs(mouseY - myrect.rect_Y) < devi && mouseX > myrect.rect_X && mouseX < myrect.rect_X1)) {
                 cursorShape = Qt.SizeVerCursor;
                 if (pressed) {
                     // 按下后才开始调整矩形
                     down2 = true;
-                    rect_Y = mouseY;
+                    myrect.rect_Y = mouseY;
                 }
             } else
             // 右边
-            if ((down3) || (Math.abs(mouseX - rect_X1) < devi && mouseY > rect_Y && mouseY < rect_Y1)) {
+            if ((down3) || (Math.abs(mouseX - myrect.rect_X1) < devi && mouseY > myrect.rect_Y && mouseY < myrect.rect_Y1)) {
                 cursorShape = Qt.SizeHorCursor;
                 if (pressed) {
                     // 按下后才开始调整矩形
                     down3 = true;
-                    rect_X1 = mouseX;
+                    myrect.rect_X1 = mouseX;
                 }
             } else
             // 下边
-            if ((down4) || (Math.abs(mouseY - rect_Y1) < devi && mouseX > rect_X && mouseX < rect_X1)) {
+            if ((down4) || (Math.abs(mouseY - myrect.rect_Y1) < devi && mouseX > myrect.rect_X && mouseX < myrect.rect_X1)) {
                 cursorShape = Qt.SizeVerCursor;
                 if (pressed) {
                     // 按下后才开始调整矩形
                     down4 = true;
-                    rect_Y1 = mouseY;
+                    myrect.rect_Y1 = mouseY;
                 }
             } else {
                 // 不在矩形上时,恢复光标
@@ -151,7 +151,7 @@ Item {
 
         onPressed: {
             // 在矩形中间按下鼠标左键后,设置光标为 "抓住" 状态的样式
-            if ((!down && !down2 && !down3 && !down4) && ((down5) || (mouseX > rect_X && mouseX < rect_X1 && mouseY > rect_Y && mouseY < rect_Y1))) {
+            if ((!down && !down2 && !down3 && !down4) && ((down5) || (mouseX > myrect.rect_X && mouseX < myrect.rect_X1 && mouseY > myrect.rect_Y && mouseY < myrect.rect_Y1))) {
                 cursor_grab = true;
                 cursorShape = Qt.ClosedHandCursor;
             }

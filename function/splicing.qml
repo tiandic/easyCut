@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Dialogs
@@ -49,7 +51,7 @@ Item {
             }
             Com.Button {
                 text_: qsTr("← 返回")
-                onClicked: stackView.pop()
+                onClicked: root.stackView.pop()
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 30
             }
@@ -109,10 +111,13 @@ Item {
                 radius: 5
                 border.color: "gray"
 
+                required property string name
+                required property int index
+
                 MouseArea {
                     anchors.fill: parent
                     onPressed: {
-                        listview.currentIndex = index;
+                        listview.currentIndex = delegate_root.index;
                         listview.isClicked = true;
                     }
                     onReleased: listview.isClicked = false
@@ -120,8 +125,8 @@ Item {
                         var lastIndex = listview.indexAt(mouseX + delegate_root.x, mouseY + delegate_root.y);
                         if (lastIndex < 0 || lastIndex >= list_data.count)
                             return;
-                        if (index !== lastIndex)
-                            list_data.move(index, lastIndex, 1);
+                        if (delegate_root.index !== lastIndex)
+                            list_data.move(delegate_root.index, lastIndex, 1);
                     }
                 }
 
@@ -136,7 +141,7 @@ Item {
                     Text {
                         Layout.preferredHeight: parent.height / 3
                         Layout.alignment: Qt.AlignLeft
-                        text: get_path_name(name)
+                        text: root.get_path_name(delegate_root.name)
                     }
 
                     Item {
@@ -171,7 +176,7 @@ Item {
                         Layout.alignment: Qt.AlignRight
                         text_: qsTr("X")
                         onClicked: {
-                            list_data.remove(index);
+                            list_data.remove(delegate_root.index);
                         }
                     }
                     Item {

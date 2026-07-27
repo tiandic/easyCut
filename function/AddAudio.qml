@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick 2.15
 import QtQuick.Dialogs
 import QtQuick.Layouts 1.15
@@ -91,7 +93,7 @@ Item {
             }
             Com.Button {
                 text_: qsTr("← 返回")
-                onClicked: stackView.pop()
+                onClicked: root.stackView.pop()
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 30
             }
@@ -133,13 +135,15 @@ Item {
                 radius: 5
                 border.color: "gray"
 
+                required property string name
+
                 RowLayout {
                     anchors.fill: parent
 
                     Text {
                         Layout.preferredHeight: parent.height / 3
                         Layout.alignment: Qt.AlignVCenter
-                        text: get_path_name(name)
+                        text: root.get_path_name(delegate_root.name)
                     }
                 }
             }
@@ -172,7 +176,7 @@ Item {
                 Layout.fillWidth: true
                 text_: qsTr("确认")
                 onClicked: {
-                    let m = check_input(input_start_time.text);
+                    let m = root.check_input(input_start_time.text);
                     if (!audio_path_select.selected_file) {
                         msg.text = qsTr("请先选择需要添加的音频文件!");
                         msg.open();

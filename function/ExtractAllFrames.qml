@@ -40,7 +40,7 @@ Item {
             }
             Com.Button {
                 text_: qsTr("← 返回")
-                onClicked: stackView.pop()
+                onClicked: root.stackView.pop()
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 30
             }
@@ -101,7 +101,7 @@ Item {
                 msg_warning.text = dir_path + "\n" + msg_warning.text;
                 msg_warning.open();
             } else {
-                exec_ffmpeg();
+                root.exec_ffmpeg();
             }
         }
     }
@@ -117,7 +117,7 @@ Item {
         onButtonClicked: function (button, role) {
             switch (button) {
             case MessageDialog.Ok:
-                exec_ffmpeg();
+                root.exec_ffmpeg();
                 break;
             }
         }

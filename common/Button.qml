@@ -16,7 +16,7 @@ Rectangle {
 
     Text {
         anchors.centerIn: parent
-        text: text_
+        text: button.text_
     }
 
     Behavior on scale {

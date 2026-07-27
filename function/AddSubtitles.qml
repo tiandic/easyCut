@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Controls
@@ -125,7 +127,7 @@ Item {
             }
             Com.Button {
                 text_: qsTr("← 返回")
-                onClicked: stackView.pop()
+                onClicked: root.stackView.pop()
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 30
             }
@@ -168,6 +170,11 @@ Item {
 
             delegate: Rectangle {
                 id: delegate_root
+                required property string start_time
+                required property string end_time
+                required property string subtitles
+                required property int index
+
                 width: listview.width
                 height: 40 * ((subtitles.match(/\n/g) || []).length + 1)
                 border.width: 1
@@ -187,13 +194,13 @@ Item {
                         Layout.preferredHeight: parent.height / 3
                         Layout.alignment: Qt.AlignLeft
                         Text {
-                            text: start_time + " → " + end_time
+                            text: delegate_root.start_time + " → " + delegate_root.end_time
                         }
 
                         ScrollView {
                             Layout.fillWidth: true
                             Text {
-                                text: subtitles
+                                text: delegate_root.subtitles
                             }
                         }
                     }
@@ -226,7 +233,7 @@ Item {
                         Layout.alignment: Qt.AlignRight
                         text_: qsTr("X")
                         onClicked: {
-                            list_data.remove(index);
+                            list_data.remove(delegate_root.index);
                         }
                     }
                     Item {

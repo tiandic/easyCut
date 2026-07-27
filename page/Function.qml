@@ -1,10 +1,12 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick 2.15
 import QtQuick.Layouts
 import "../common" as Com
 
 // 功能选择
 Item {
-    id: select_function
+    id: root
     property string video_path: ""
     property var stackView
 
@@ -59,7 +61,7 @@ Item {
             }
             Com.Button {
                 text_: qsTr("← 返回")
-                onClicked: stackView.pop()
+                onClicked: root.stackView.pop()
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 30
             }
@@ -81,25 +83,27 @@ Item {
             function goto_function(n) {
                 var comp = Qt.createComponent("../function/" + n + ".qml");
                 if (comp.status == Component.Ready) {
-                    var obj = comp.createObject(null, {
-                        video_path: select_function.video_path,
-                        stackView: select_function.stackView
+                    let obj = comp.createObject(null, {
+                        video_path: root.video_path,
+                        stackView: root.stackView
                     });
                     if (obj == null) {
                         console.log(n + " create failed!");
                         return;
                     }
-                    stackView.push(obj);
+                    root.stackView.push(obj);
                 } else if (comp.status == Component.Error)
                     console.log(comp.errorString());
             }
 
             delegate: Com.Button {
                 id: button
+                required property string name
+                required property string text
                 width: listview.width * 5 / 6
                 height: width / 3
-                text_: model.text
-                onClicked: listview.goto_function(model.name)
+                text_: text
+                onClicked: listview.goto_function(name)
             }
 
             anchors {

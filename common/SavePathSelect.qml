@@ -23,7 +23,7 @@ Item {
         title: qsTr("选择保存位置")
         fileMode: FileDialog.SaveFile
         currentFile: {
-            let ext = get_extension(root.input_video_path);
+            let ext = root.get_extension(root.input_video_path);
             if (ext !== '')
                 return "out." + ext;
             return "out.mp4";
@@ -35,8 +35,8 @@ Item {
             let file_path = cmd.cvt_file_url_to_local(root.input_video_path);
             let save_path = cmd.cvt_file_url_to_local(save_path_select.selectedFile.toString());
             if (save_path.indexOf('.') === -1)
-                save_path = save_path + '.' + get_extension(file_path);
-            console.debug(get_extension(root.input_video_path));
+                save_path = save_path + '.' + root.get_extension(file_path);
+            console.debug(root.get_extension(root.input_video_path));
             root.selected(file_path, save_path);
         }
     }

@@ -60,7 +60,7 @@ Item {
             }
             Com.Button {
                 text_: qsTr("← 返回")
-                onClicked: stackView.pop()
+                onClicked: root.stackView.pop()
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 30
             }
@@ -86,8 +86,8 @@ Item {
                     if (input_x.text == "")
                         return;
                     console.debug("change rect x:", input_x.text);
-                    if (cvt_input_to_rect_with_w(parseInt(input_x.text)) !== rect.rect_X)
-                        rect.rect_X = cvt_input_to_rect_with_w(parseInt(input_x.text));
+                    if (root.cvt_input_to_rect_with_w(parseInt(input_x.text)) !== rect.rect_X)
+                        rect.rect_X = root.cvt_input_to_rect_with_w(parseInt(input_x.text));
                 })
             }
             Com.LabelInput2 {
@@ -103,8 +103,8 @@ Item {
                     if (input_y.text == "")
                         return;
                     console.debug("change rect y:", input_y.text);
-                    if (cvt_input_to_rect_with_h(parseInt(input_y.text)) !== rect.rect_Y)
-                        rect.rect_Y = cvt_input_to_rect_with_h(parseInt(input_y.text));
+                    if (root.cvt_input_to_rect_with_h(parseInt(input_y.text)) !== rect.rect_Y)
+                        rect.rect_Y = root.cvt_input_to_rect_with_h(parseInt(input_y.text));
                 })
             }
         }
@@ -125,8 +125,8 @@ Item {
                     if (input_w.text == "")
                         return;
                     console.debug("change rect width:", input_w.text);
-                    if (cvt_input_to_rect_with_w(parseInt(input_w.text)) !== rect.rect_X1 - rect.rect_X)
-                        rect.rect_X1 = cvt_input_to_rect_with_w(rect.rect_X + parseInt(input_w.text));
+                    if (root.cvt_input_to_rect_with_w(parseInt(input_w.text)) !== rect.rect_X1 - rect.rect_X)
+                        rect.rect_X1 = root.cvt_input_to_rect_with_w(rect.rect_X + parseInt(input_w.text));
                 })
             }
             Com.LabelInput2 {
@@ -142,8 +142,8 @@ Item {
                     if (input_w.text == "")
                         return;
                     console.debug("change rect height:", input_h.text);
-                    if (cvt_input_to_rect_with_h(parseInt(input_h.text)) !== rect.rect_Y1 - rect.rect_Y)
-                        rect.rect_Y1 = cvt_input_to_rect_with_h(rect.rect_Y + parseInt(input_h.text));
+                    if (root.cvt_input_to_rect_with_h(parseInt(input_h.text)) !== rect.rect_Y1 - rect.rect_Y)
+                        rect.rect_Y1 = root.cvt_input_to_rect_with_h(rect.rect_Y + parseInt(input_h.text));
                 })
             }
         }
@@ -153,16 +153,16 @@ Item {
             text_: qsTr("确认")
             onClicked: {
                 let m;
-                if ((m = check_input(input_x)) != "") {
+                if ((m = root.check_input(input_x)) != "") {
                     msg.text = m;
                     msg.open();
-                } else if (cvt_input_to_rect_with_h(parseInt(input_x.text)) > videoPlay.video_width) {
+                } else if (root.cvt_input_to_rect_with_h(parseInt(input_x.text)) > videoPlay.video_width) {
                     msg.text = qsTr(`矩形 x 坐标过大! 视频宽度为: ${videoPlay.video_width}`);
-                } else if (cvt_input_to_rect_with_w(parseInt(input_y.text)) > videoPlay.video_height) {
+                } else if (root.cvt_input_to_rect_with_w(parseInt(input_y.text)) > videoPlay.video_height) {
                     msg.text = qsTr(`矩形 y 坐标过大! 视频高度为: ${videoPlay.video_height}`);
-                } else if (cvt_input_to_rect_with_h(parseInt(input_h.text)) > videoPlay.video_height) {
+                } else if (root.cvt_input_to_rect_with_h(parseInt(input_h.text)) > videoPlay.video_height) {
                     msg.text = qsTr(`矩形过高! 视频高度为: ${videoPlay.video_height}`);
-                } else if (cvt_input_to_rect_with_w(parseInt(input_w.text)) > videoPlay.video_width) {
+                } else if (root.cvt_input_to_rect_with_w(parseInt(input_w.text)) > videoPlay.video_width) {
                     msg.text = qsTr(`矩形过宽! 视频宽度为: ${videoPlay.video_width}`);
                 } else {
                     save_path_select.dialog.open();
@@ -205,15 +205,17 @@ Item {
                 height = mapped.height;
 
                 // 初始化输入框的数据
-                input_x.text = cvt_rect_to_input_with_w(rect.rect_X);
-                input_y.text = cvt_rect_to_input_with_h(rect.rect_Y);
-                input_w.text = cvt_rect_to_input_with_w(rect.rect_X1 - rect.rect_X);
-                input_h.text = cvt_rect_to_input_with_h(rect.rect_Y1 - rect.rect_Y);
+                input_x.text = root.cvt_rect_to_input_with_w(rect.rect_X);
+                input_y.text = root.cvt_rect_to_input_with_h(rect.rect_Y);
+                input_w.text = root.cvt_rect_to_input_with_w(rect.rect_X1 - rect.rect_X);
+                input_h.text = root.cvt_rect_to_input_with_h(rect.rect_Y1 - rect.rect_Y);
             }
 
             Connections {
                 target: videoPlay.videooutput
-                onContentRectChanged: rect.updateRect()
+                function onContentRectChanged() {
+                    rect.updateRect();
+                }
             }
             onClickOutlined: {
                 videoPlay.need_toggle_play_status = true;
@@ -272,13 +274,13 @@ Item {
 
         onTriggered: {
             if (!input_x.hasFocus && parseInt(input_x.text) != rect.rect_X && rect.mouse_pressed)
-                input_x.text = cvt_rect_to_input_with_w(rect.rect_X);
+                input_x.text = root.cvt_rect_to_input_with_w(rect.rect_X);
             if (!input_y.hasFocus && parseInt(input_y.text) != rect.rect_Y && rect.mouse_pressed)
-                input_y.text = cvt_rect_to_input_with_h(rect.rect_Y);
+                input_y.text = root.cvt_rect_to_input_with_h(rect.rect_Y);
             if (!input_w.hasFocus && parseInt(input_w.text) != rect.rect_X1 - rect.rect_X && rect.mouse_pressed)
-                input_w.text = cvt_rect_to_input_with_w(rect.rect_X1 - rect.rect_X);
+                input_w.text = root.cvt_rect_to_input_with_w(rect.rect_X1 - rect.rect_X);
             if (!input_h.hasFocus && parseInt(input_h.text) != rect.rect_Y1 - rect.rect_Y && rect.mouse_pressed)
-                input_h.text = cvt_rect_to_input_with_h(rect.rect_Y1 - rect.rect_Y);
+                input_h.text = root.cvt_rect_to_input_with_h(rect.rect_Y1 - rect.rect_Y);
         }
     }
 

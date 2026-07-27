@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
 import "page" as Page
@@ -17,10 +19,9 @@ Window {
 
     Component {
         id: welcome_page
-    Page.Welcome {
-        anchors.fill: parent
-        stackView: stack
+        Page.Welcome {
+            anchors.fill: parent
+            stackView: stack
         }
     }
-
 }

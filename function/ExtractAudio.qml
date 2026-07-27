@@ -43,7 +43,7 @@ Item {
             }
             Com.Button {
                 text_: qsTr("← 返回")
-                onClicked: stackView.pop()
+                onClicked: root.stackView.pop()
                 Layout.preferredWidth: 80
                 Layout.preferredHeight: 30
             }
@@ -83,7 +83,7 @@ Item {
         title: qsTr("选择保存位置")
         fileMode: FileDialog.SaveFile
         currentFile: {
-            let ext = get_extension(root.input_video_path);
+            let ext = root.get_extension(root.video_path);
             if (ext !== '')
                 return "out." + ext;
             return "out.mp3";
