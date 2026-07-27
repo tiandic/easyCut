@@ -5,6 +5,7 @@
 #include "qhashfunctions.h"
 #include "qlogging.h"
 #include "qtmetamacros.h"
+#include "qurl.h"
 #include <QImage>
 #include <QObject>
 #include <QPainter>
@@ -54,9 +55,8 @@ public:
   double progress_time;
 
   explicit Ffmpeg_frame(QString local_video_path) {
-    QByteArray ba = local_video_path.toLocal8Bit();
-    const char *c_str2 = ba.data();
-    if (avformat_open_input(&fmt_ctx, c_str2, nullptr, nullptr) < 0) {
+    if (avformat_open_input(&fmt_ctx, local_video_path.toStdString().c_str(),
+                            nullptr, nullptr) < 0) {
       qWarning() << "Failed to open the '" << local_video_path << "' file!";
       has_error = true;
       return;
@@ -648,8 +648,9 @@ public:
 
   Q_INVOKABLE bool init_video() {
     if (m_videoPath != nullptr && ffmpeg_frame == nullptr) {
-      qDebug() << "new Ffmpeg_frame(\"" << m_videoPath << "\")";
-      ffmpeg_frame = new Ffmpeg_frame(m_videoPath);
+      QString path = QUrl(m_videoPath).toLocalFile();
+      qDebug() << "new Ffmpeg_frame(" << path << ")";
+      ffmpeg_frame = new Ffmpeg_frame(path);
 
       video_steam_base_time =
           ffmpeg_frame->fmt_ctx->streams[ffmpeg_frame->video_stream_index]
