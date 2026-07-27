@@ -50,6 +50,13 @@ qt_add_qml_module(appeasyCut
         QML_FILES common/MsgDialog.qml
 )
 
+
+qt_add_resources(appeasyCut "app_fonts"
+    PREFIX "/"
+    FILES
+      fonts/Noto_Sans_Mono_CJK_SC.ttf
+)
+
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
