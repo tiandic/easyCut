@@ -9,7 +9,7 @@ Window {
     width: 640
     height: 480
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("easyCut")
 
     StackView {
         id: stack
@@ -17,11 +17,8 @@ Window {
         anchors.fill: parent
     }
 
-    Component {
+    Page.Welcome {
         id: welcome_page
-        Page.Welcome {
-            anchors.fill: parent
-            stackView: stack
-        }
+        stackView: stack
     }
 }
