@@ -82,13 +82,8 @@ Item {
         id: save_path_select
         title: qsTr("选择保存位置")
         fileMode: FileDialog.SaveFile
-        currentFile: {
-            let ext = root.get_extension(root.video_path);
-            if (ext !== '')
-                return "out." + ext;
-            return "out.mp3";
-        }
-        currentFolder: StandardPaths.standardLocations(StandardPaths.MoviesLocation)[0]
+        currentFile: "out.mp3"
+        currentFolder: StandardPaths.standardLocations(StandardPaths.MusicLocation)[0]
         nameFilters: [qsTr("音频文件 (*.mp3 *.wav *.aac *.flac *.ogg *.oga *.m4a *.wma *.opus *.ape *.ac3 *.eac3 *.dts *.amr *.aiff *.aif *.au *.ra *.mka *.tta *.wv *.caf *.dsf *.dff *.spx *.gsm *.voc *.mid *.midi *.pcm *.alac *.mp2 *.mp1 *.weba *.oga)"), qsTr("所有文件 (*)")]
 
         onAccepted: {
