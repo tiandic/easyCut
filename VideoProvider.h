@@ -57,12 +57,12 @@ public:
   explicit Ffmpeg_frame(QString local_video_path) {
     if (avformat_open_input(&fmt_ctx, local_video_path.toStdString().c_str(),
                             nullptr, nullptr) < 0) {
-      qWarning() << "Failed to open the '" << local_video_path << "' file!";
+      qFatal() << "Failed to open the '" << local_video_path << "' file!";
       has_error = true;
       return;
     }
     if (avformat_find_stream_info(fmt_ctx, nullptr) < 0) {
-      qWarning() << "Unable to obtain stream information";
+      qFatal() << "Unable to obtain stream information";
       has_error = true;
       return;
     }
@@ -76,7 +76,7 @@ public:
     }
 
     if (video_stream_index == -1) {
-      qWarning() << "No video stream";
+      qFatal() << "No video stream";
       has_error = true;
       return;
     }
