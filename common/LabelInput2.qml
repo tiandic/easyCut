@@ -29,16 +29,11 @@ Item {
         spacing: 8
 
         anchors.fill: parent
-        // anchors {
-        // left: parent.left
-        // right: parent.right
-        // }
 
         // 前导提示标签
         Text {
             text: root.label
             font.pixelSize: 13
-            font.weight: font.Medium
             color: field.activeFocus ? root.accentColor : root.labelColor
             Layout.alignment: Qt.AlignVCenter
             Behavior on color {
@@ -77,16 +72,16 @@ Item {
                 verticalAlignment: TextInput.AlignVCenter
                 background: Item {}
 
-                Keys.onPressed: (event) => {
-                        if (event.key === Qt.Key_Escape) {
-                            focus = false
-                        }
+                Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Escape) {
+                        focus = false;
                     }
+                }
 
-                onAccepted:{
-                  root.submitted()
-                  focus = false 
-              }
+                onAccepted: {
+                    root.submitted();
+                    focus = false;
+                }
 
                 onTextChanged: Qt.callLater(function () {
                     if (root.text !== field.text)

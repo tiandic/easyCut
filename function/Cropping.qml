@@ -1,8 +1,5 @@
 import QtQuick 2.15
-import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import QtCore
-import QtQuick.Dialogs
 
 import "../common" as Com
 
@@ -29,18 +26,10 @@ Item {
     }
 
     function cvt_rect_to_input_with_w(num) {
-        // console.debug("video_width: ", videoPlay.video_width);
-        // console.debug("rect width: ", rect.width);
-        // console.debug();
-
         return Math.round(num * videoPlay.video_width / rect.width);
     }
 
     function cvt_input_to_rect_with_w(num) {
-        // console.debug("video_width: ", videoPlay.video_width);
-        // console.debug("rect width: ", rect.width);
-        // console.debug();
-
         return Math.round(num * rect.width / videoPlay.video_width);
     }
 
@@ -54,7 +43,6 @@ Item {
 
     ColumnLayout {
         id: input
-        // anchors.centerIn: parent
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.left: parent.left
@@ -92,8 +80,6 @@ Item {
                 label: "x"
                 placeholder: "0"
 
-                // text: rect.rect_X
-
                 onTextChanged: Qt.callLater(function () {
                     if (!input_x.hasFocus)
                         return;
@@ -110,8 +96,6 @@ Item {
                 Layout.preferredWidth: 1
                 label: "y"
                 placeholder: "0"
-
-                // text: rect.rect_Y
 
                 onTextChanged: Qt.callLater(function () {
                     if (!input_y.hasFocus)
@@ -135,8 +119,6 @@ Item {
                 label: qsTr("宽")
                 placeholder: videoPlay.video_width
 
-                // text: rect.rect_X1 - rect.rect_X
-
                 onTextChanged: Qt.callLater(function () {
                     if (!input_w.hasFocus)
                         return;
@@ -153,8 +135,6 @@ Item {
                 Layout.preferredWidth: 1
                 label: qsTr("高")
                 placeholder: videoPlay.video_height
-
-                // text: rect.rect_Y1 - rect.rect_Y
 
                 onTextChanged: Qt.callLater(function () {
                     if (!input_h.hasFocus)
@@ -225,10 +205,6 @@ Item {
                 height = mapped.height;
 
                 // 初始化输入框的数据
-                // input_x.text = rect_X;
-                // input_y.text = rect_Y;
-                // input_w.text = rect_X1 - rect_X;
-                // input_h.text = rect_Y1 - rect_Y;
                 input_x.text = cvt_rect_to_input_with_w(rect.rect_X);
                 input_y.text = cvt_rect_to_input_with_h(rect.rect_Y);
                 input_w.text = cvt_rect_to_input_with_w(rect.rect_X1 - rect.rect_X);
@@ -252,26 +228,18 @@ Item {
             onRect_XChanged: {
                 if (rect_X < 0)
                     rect_X = 0;
-                // if (parseInt(input_x.text) != rect.rect_X)
-                // input_x.text = rect_X;
             }
             onRect_YChanged: {
                 if (rect_Y < 0)
                     rect_Y = 0;
-                // if (parseInt(input_y.text) != rect.rect_Y)
-                // input_y.text = rect_Y;
             }
             onRect_X1Changed: {
                 if (rect_X1 > width)
                     rect_X1 = width;
-                // if (parseInt(input_w.text) != rect.rect_X1 - rect_X)
-                // input_w.text = rect_X1 - rect_X;
             }
             onRect_Y1Changed: {
                 if (rect_Y1 > height)
                     rect_Y1 = height;
-                // if (parseInt(input_h.text) != rect.rect_Y1 - rect_Y)
-                // input_h.text = rect_Y1 - rect_Y;
             }
         }
     }
@@ -303,11 +271,6 @@ Item {
         running: true
 
         onTriggered: {
-
-            // console.debug();
-            // console.debug("input: ", input_x.text, input_y.text, input_w.text, input_h.text);
-            // console.debug("rect: ", rect.rect_X, rect.rect_Y, rect.rect_X1 - rect.rect_X, rect.rect_Y1 - rect.rect_Y);
-
             if (!input_x.hasFocus && parseInt(input_x.text) != rect.rect_X && rect.mouse_pressed)
                 input_x.text = cvt_rect_to_input_with_w(rect.rect_X);
             if (!input_y.hasFocus && parseInt(input_y.text) != rect.rect_Y && rect.mouse_pressed)

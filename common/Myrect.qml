@@ -80,8 +80,6 @@ Item {
         anchors.fill: parent
 
         onPositionChanged: {
-            // if (!pressed)
-            // return;
             let devi = 6; // 允许鼠标不完全与矩形的边重合,略有距离也可以拖动
             myrect.mouse_pressed = true;
 

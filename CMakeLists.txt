@@ -34,7 +34,6 @@ qt_add_qml_module(appeasyCut
         QML_FILES common/Button.qml
         QML_FILES page/Function.qml
         QML_FILES common/VideoPlay.qml
-        QML_FILES common/InputText.qml
         QML_FILES common/Myrect.qml
         QML_FILES common/LabelInput.qml
         QML_FILES common/LabelInput2.qml

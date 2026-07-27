@@ -87,12 +87,10 @@ Item {
     ColumnLayout {
         id: control
         anchors {
-            // 位于画面下面,并有一定间隔
+            // 位于画面下面
             bottom: parent.bottom
             left: parent.left
             right: parent.right
-
-            // topMargin: 30
         }
 
         height: parent.height / 8
@@ -127,7 +125,7 @@ Item {
             }
 
             handle: Rectangle {
-                x: slider.visualPosition * slider.width// - width / 2 + slider.leftPadding
+                x: slider.visualPosition * slider.width
                 y: (parent.height - height) / 2
 
                 width: 14

@@ -27,16 +27,11 @@ Item {
         spacing: 8
 
         anchors.fill: parent
-        // anchors {
-        // left: parent.left
-        // right: parent.right
-        // }
 
         // 前导提示标签
         Text {
             text: root.label
             font.pixelSize: 13
-            font.weight: font.Medium
             color: field.activeFocus ? root.accentColor : root.labelColor
             Layout.alignment: Qt.AlignVCenter
             Behavior on color {

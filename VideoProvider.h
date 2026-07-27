@@ -488,21 +488,19 @@ public:
     AVSampleFormat in_fmt = m_ff->codec_ctx_audio->sample_fmt;
     int in_rate = m_ff->codec_ctx_audio->sample_rate;
 
-    // 输出参数（Qt Audio 一般固定 stereo + S16）
+    // 输出参数
     AVChannelLayout out_chlayout;
     av_channel_layout_default(&out_chlayout, 2);
 
     AVSampleFormat out_fmt = AV_SAMPLE_FMT_S16;
-    int out_rate = m_ff->codec_ctx_audio->sample_rate; // 不重采样就用同样的
+    int out_rate = m_ff->codec_ctx_audio->sample_rate;
 
     // 创建 SwrContext
-
     int ret = swr_alloc_set_opts2(&swrCtx, &out_chlayout, out_fmt, out_rate,
                                   in_chlayout, in_fmt, in_rate, 0, nullptr);
     swr_init(swrCtx);
     get_ffmpeg_audio_data();
     qDebug() << "real_data_size: " << buf_real_size;
-    // noiseWave();
   }
 
   ~AudioWave() { swr_free(&swrCtx); }
@@ -514,12 +512,6 @@ public:
     format.setChannelCount(2);
     format.setSampleFormat(QAudioFormat::Int16);
   }
-  // void set_format(QAudioFormat &format){
-  //     const int kSampleRate = 11025;
-  //     format.setSampleRate(kSampleRate);
-  //     format.setChannelCount(1);
-  //     format.setSampleFormat(QAudioFormat::UInt8);
-  // }
 
 protected:
   qint64 readData(char *data, qint64 maxlen) override {
@@ -553,32 +545,11 @@ protected:
     return total;
   }
 
-  // static const int kBufferSize = 10000;
-  // quint8 buffer[kBufferSize];
-  // void noiseWave() {
-  //     for (int i = 0; i < kBufferSize; i++)
-  //         buffer[i] = std::rand() % 256;
-
-  // }
-  // qint64 readData(char* data, qint64 maxSize) override {
-  //     qDebug() << "Requesting " << maxSize << " bytes.";
-  //     if (maxSize > kBufferSize) maxSize = kBufferSize;
-
-  //     qDebug() << "Giving back " << maxSize;
-  //     std::memcpy(data, buffer, maxSize);
-
-  //     return maxSize;
-  // }
-
   qint64 writeData(const char *, qint64) override { return -1; }
 
   qint64 bytesAvailable() const override {
     return buf_real_size + QIODevice::bytesAvailable();
   }
-
-  // qint64 bytesAvailable() const override {
-  //     return kBufferSize + QIODevice::bytesAvailable();
-  // }
 
 private:
   Ffmpeg_frame *m_ff;
@@ -692,9 +663,9 @@ public:
   }
 
   Q_INVOKABLE void start() {
-    qDebug() << "enter func \"start()\"\n"
-             << "m_videoPath=" << m_videoPath << "\n"
-             << "ffmpeg_frame==nullptr = " << (ffmpeg_frame == nullptr) << "\n";
+    // qDebug() << "enter func \"start()\"\n"
+    // << "m_videoPath=" << m_videoPath << "\n"
+    // << "ffmpeg_frame==nullptr = " << (ffmpeg_frame == nullptr) << "\n";
 
     if (ffmpeg_frame != nullptr) {
       qDebug() << "start video";
@@ -808,30 +779,7 @@ private:
     int plane = 0;
     QImage image(video_frame.bits(plane), video_frame.width(),
                  video_frame.height(), image_format);
-    // QImage img=queue_images.dequeue();
     QImage img = ffmpeg_frame->cvtQImageFromFrame(frn);
-    // emit images_dequeueed();
-
-    // bool loaded = img.load(filePath);
-
-    // if (!loaded) {
-    //     QFileInfo fi(filePath);
-    //     if (!fi.exists()) {
-    //         qWarning() << "Failed to load image:" << filePath << "-> file
-    //         does not exist!";
-    //     } else if (!fi.isReadable()) {
-    //         qWarning() << "Failed to load image:" << filePath << "-> file is
-    //         not readable!";
-    //     } else {
-    //         qWarning() << "Failed to load image:" << filePath
-    //                    << "-> possibly unsupported format or corrupted
-    //                    file!";
-    //     }
-
-    //     img = QImage(video_frame.width(), video_frame.height(),
-    //                  QVideoFrameFormat::imageFormatFromPixelFormat(video_frame.pixelFormat()));
-    //     img.fill(Qt::black);
-    // }
 
     if (img.size() != image.size()) {
       img = img.scaled(image.size(), Qt::IgnoreAspectRatio,

@@ -112,7 +112,6 @@ Item {
     // 视频播放区域
     Com.VideoPlay {
         id: videoPlay
-        //anchors.fill: parent
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.right: parent.right
