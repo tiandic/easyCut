@@ -4,7 +4,7 @@
 #include "qcoreapplication.h"
 #include "qdir.h"
 #include "qfiledevice.h"
-#include "qhashfunctions.h"
+#include "qlogging.h"
 #include "qstandardpaths.h"
 class Config_file_ffmpeg_cmd {
 public:
@@ -15,7 +15,7 @@ public:
 
   void push_ffmpeg_cmd(QString cmd) {
     sync_from_file();
-    qDebug() << "push cmd:" << cmd;
+    qInfo() << "push cmd:" << cmd;
     __push_ffmpeg_cmd(cmd);
     save_ffmpeg_cmd();
   }
@@ -62,7 +62,7 @@ private:
     while (!in.atEnd()) {
       QString line = in.readLine();
       if (is_print)
-        qDebug() << "found command:" << line;
+        qInfo() << "found command:" << line;
       __push_ffmpeg_cmd(line);
     }
   }

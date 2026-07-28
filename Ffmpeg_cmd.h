@@ -1,6 +1,4 @@
 #pragma once
-
-#include "QtNetwork/qlocalserver.h"
 #include "QtNetwork/qlocalsocket.h"
 #include "qcoreapplication.h"
 #include "qdebug.h"
@@ -16,7 +14,6 @@
 #include <QObject>
 #include <QStandardPaths>
 #include <QtQml>
-#include <ctime>
 #include <functional>
 
 #include "config.h"

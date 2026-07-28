@@ -127,7 +127,7 @@ public:
     avcodec_parameters_to_context(codec_ctx_audio, codecpar_audio);
 
     if (avcodec_open2(codec_ctx_video, codec_video, nullptr) < 0) {
-      qWarning() << "video: Unable to open decoder";
+      qFatal() << "video: Unable to open decoder";
       has_error = true;
       return;
     }
@@ -226,8 +226,8 @@ public:
 
   void seek(int64_t target_time) {
 
-    qDebug() << "video seek:  " << target_time / 100 << "s ; "
-             << "total time: " << get_total_time() / 100 << 's';
+    qInfo() << "video seek:  " << target_time / 100 << "s ; "
+            << "total time: " << get_total_time() / 100 << 's';
 
     bool is_tail = target_time / 100 == get_total_time() / 100;
     qDebug() << "is tail: " << is_tail;
@@ -284,7 +284,7 @@ public:
         pFrame->width, pFrame->height, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL,
         NULL, NULL);
     if (!img_convert_ctx) {
-      qDebug() << "Failed to create sws context";
+      qFatal() << "Failed to create sws context";
       return QImage();
     }
 
@@ -298,14 +298,14 @@ public:
     // as explained above, we need to alloc extra 64 bytes
     rgbData[0] = (unsigned char *)malloc(imgBytesSyze + 64);
     if (!rgbData[0]) {
-      qDebug() << "Error allocating buffer for frame conversion";
+      qFatal() << "Error allocating buffer for frame conversion";
       free(rgbData[0]);
       sws_freeContext(img_convert_ctx);
       return QImage();
     }
     if (sws_scale(img_convert_ctx, pFrame->data, pFrame->linesize, 0,
                   pFrame->height, rgbData, rgb_linesizes) != pFrame->height) {
-      qDebug() << "Error changing frame color range";
+      qFatal() << "Error changing frame color range";
       free(rgbData[0]);
       sws_freeContext(img_convert_ctx);
       return QImage();
@@ -613,10 +613,7 @@ public:
   QString videoPath() const { return m_videoPath; }
   bool videoPlaying() const { return m_videoPlaying; }
   int videoWidth() const { return ffmpeg_frame->width; }
-  int videoHeight() const {
-    qDebug() << "get ffmpeg_frame->height = " << ffmpeg_frame->height;
-    return ffmpeg_frame->height;
-  }
+  int videoHeight() const { return ffmpeg_frame->height; }
   int progressTime() const { return ffmpeg_frame->progress_time; }
 
   void setVideoSink(QVideoSink *sink) {
