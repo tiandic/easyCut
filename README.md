@@ -1,5 +1,6 @@
 # easyCut
 这是一个为简单视频处理而生的工具
+<img width="1918" height="1042" alt="Screenshot from 2026-07-28 13-09-17" src="https://github.com/user-attachments/assets/33e1c061-7f9c-465c-82b2-c0b1c13f5aab" />
 
 ## 优点:
 - 设计简单, 易于添加新功能
