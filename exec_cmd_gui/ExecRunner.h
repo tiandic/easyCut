@@ -27,6 +27,10 @@ public:
                 qApp->quit();
               }
             });
+    // 向 ffmpeg 所在进程输入 'q' 才能终止ffmpeg的运行
+    // 无论是调用 kill() 还是 terminate()都无法终止
+    connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this,
+            [this]() { process.write("q"); });
   }
 
   Q_INVOKABLE void run(QString exec_path, QList<QString> argv) {
