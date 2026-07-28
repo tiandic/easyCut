@@ -23,16 +23,6 @@
 
 如有其他希望添加的功能, 请在`issues`中提出
 
-## install
-从`releases`下载对应系统的包
-### 对于Linux
-安装依赖:
-```
-# arch
-sudo pacman --needed -S qt6-declarative qt6-multimedia ffmpeg
-```
-### 双击运行即可
-
 ## build
 依赖:
 - `qt6-declarative`
@@ -54,6 +44,9 @@ sudo pacman --needed -S base-devel cmake qt6-declarative qt6-multimedia ffmpeg
 mkdir build && cd build
 cmake ..
 make -j$(nproc)
+
+./appeasyCut
+# or
 make install
 ```
 
