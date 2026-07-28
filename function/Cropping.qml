@@ -8,12 +8,17 @@ Item {
     property string video_path: ""
     property var stackView
 
+    // 当输入为 need_most_value_char 时, 指定输入框应该被替换为最值, 最值由输入框的 placeholder 属性决定
+    property string need_most_value_char: '-'
+
     function check_input(text) {
         let l;
         if (text == "")
             return qsTr("输入不可为空!");
-        else if (!(l = check_limit(text, "1234567890"))[0])
+        else if (!(l = check_limit(text, "1234567890" + need_most_value_char))[0])
             return qsTr(`输入不应包含字符 '${l[1]}'`);
+        else if (text.indexOf(need_most_value_char) != -1 && text.length != 1)
+            return qsTr(`如果希望选取最值, 请只填写 '${need_most_value_char}' 字符, 否则需要去掉 '${need_most_value_char}'`);
         return "";
     }
 
@@ -23,6 +28,20 @@ Item {
                 return [false, text[i]];
         }
         return [true, ""];
+    }
+
+    function set_text_and_open_msgbox(text) {
+        msg.text = text;
+        msg.open();
+    }
+
+    function check_input_and_open_msgbox(text) {
+        // 无问题返回 true
+        // 有问题返回 false
+        let m;
+        if ((m = root.check_input(text)) != "")
+            set_text_and_open_msgbox(m);
+        return m == "" ? true : false;
     }
 
     function cvt_rect_to_input_with_w(num) {
@@ -86,7 +105,9 @@ Item {
                     if (input_x.text == "")
                         return;
                     console.debug("change rect x:", input_x.text);
-                    if (root.cvt_input_to_rect_with_w(parseInt(input_x.text)) !== rect.rect_X)
+                    if (input_x.text === root.need_most_value_char)
+                        rect.rect_X = root.cvt_input_to_rect_with_w(input_x.placeholder);
+                    else if (root.cvt_input_to_rect_with_w(parseInt(input_x.text)) !== rect.rect_X)
                         rect.rect_X = root.cvt_input_to_rect_with_w(parseInt(input_x.text));
                 })
             }
@@ -103,7 +124,9 @@ Item {
                     if (input_y.text == "")
                         return;
                     console.debug("change rect y:", input_y.text);
-                    if (root.cvt_input_to_rect_with_h(parseInt(input_y.text)) !== rect.rect_Y)
+                    if (input_y.text === root.need_most_value_char)
+                        rect.rect_Y = root.cvt_input_to_rect_with_h(input_y.placeholder);
+                    else if (root.cvt_input_to_rect_with_h(parseInt(input_y.text)) !== rect.rect_Y)
                         rect.rect_Y = root.cvt_input_to_rect_with_h(parseInt(input_y.text));
                 })
             }
@@ -125,7 +148,9 @@ Item {
                     if (input_w.text == "")
                         return;
                     console.debug("change rect width:", input_w.text);
-                    if (root.cvt_input_to_rect_with_w(parseInt(input_w.text)) !== rect.rect_X1 - rect.rect_X)
+                    if (input_w.text === root.need_most_value_char)
+                        rect.rect_X1 = root.cvt_input_to_rect_with_w(input_w.placeholder);
+                    else if (root.cvt_input_to_rect_with_w(parseInt(input_w.text)) !== rect.rect_X1 - rect.rect_X)
                         rect.rect_X1 = root.cvt_input_to_rect_with_w(rect.rect_X + parseInt(input_w.text));
                 })
             }
@@ -142,7 +167,9 @@ Item {
                     if (input_w.text == "")
                         return;
                     console.debug("change rect height:", input_h.text);
-                    if (root.cvt_input_to_rect_with_h(parseInt(input_h.text)) !== rect.rect_Y1 - rect.rect_Y)
+                    if (input_h.text === root.need_most_value_char)
+                        rect.rect_Y1 = root.cvt_input_to_rect_with_h(input_h.placeholder);
+                    else if (root.cvt_input_to_rect_with_h(parseInt(input_h.text)) !== rect.rect_Y1 - rect.rect_Y)
                         rect.rect_Y1 = root.cvt_input_to_rect_with_h(rect.rect_Y + parseInt(input_h.text));
                 })
             }
@@ -152,21 +179,18 @@ Item {
             Layout.fillWidth: true
             text_: qsTr("确认")
             onClicked: {
-                let m;
-                if ((m = root.check_input(input_x)) != "") {
-                    msg.text = m;
-                    msg.open();
-                } else if (root.cvt_input_to_rect_with_h(parseInt(input_x.text)) > videoPlay.video_width) {
-                    msg.text = qsTr(`矩形 x 坐标过大! 视频宽度为: ${videoPlay.video_width}`);
-                } else if (root.cvt_input_to_rect_with_w(parseInt(input_y.text)) > videoPlay.video_height) {
-                    msg.text = qsTr(`矩形 y 坐标过大! 视频高度为: ${videoPlay.video_height}`);
-                } else if (root.cvt_input_to_rect_with_h(parseInt(input_h.text)) > videoPlay.video_height) {
-                    msg.text = qsTr(`矩形过高! 视频高度为: ${videoPlay.video_height}`);
-                } else if (root.cvt_input_to_rect_with_w(parseInt(input_w.text)) > videoPlay.video_width) {
-                    msg.text = qsTr(`矩形过宽! 视频宽度为: ${videoPlay.video_width}`);
-                } else {
+                if (!root.check_input_and_open_msgbox(input_x.text) || !root.check_input_and_open_msgbox(input_y.text) || !root.check_input_and_open_msgbox(input_w.text) || !root.check_input_and_open_msgbox(input_h.text))
+                    return;
+                else if (root.cvt_input_to_rect_with_h(parseInt(input_x.text)) > videoPlay.video_width)
+                    root.set_text_and_open_msgbox(qsTr(`矩形 x 坐标过大! 视频宽度为: ${videoPlay.video_width}`));
+                else if (root.cvt_input_to_rect_with_w(parseInt(input_y.text)) > videoPlay.video_height)
+                    root.set_text_and_open_msgbox(qsTr(`矩形 y 坐标过大! 视频高度为: ${videoPlay.video_height}`));
+                else if (root.cvt_input_to_rect_with_h(parseInt(input_h.text)) > videoPlay.video_height)
+                    root.set_text_and_open_msgbox(qsTr(`矩形过高! 视频高度为: ${videoPlay.video_height}`));
+                else if (root.cvt_input_to_rect_with_w(parseInt(input_w.text)) > videoPlay.video_width)
+                    root.set_text_and_open_msgbox(qsTr(`矩形过宽! 视频宽度为: ${videoPlay.video_width}`));
+                else
                     save_path_select.dialog.open();
-                }
             }
         }
         Item {
@@ -261,7 +285,29 @@ Item {
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
             let file_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
-            let crop_str = `${input_w.text}:${input_h.text}:${input_x.text}:${input_y.text}`;
+            let w = input_w.text;
+            let h = input_h.text;
+            let x = input_x.text;
+            let y = input_y.text;
+
+            if (w == root.need_most_value_char) {
+                if (x == root.need_most_value_char)
+                    w = input_w.placeholder - input_x.placeholder;
+                else
+                    w = input_w.placeholder - parseInt(input_x.text);
+            }
+            if (h == root.need_most_value_char) {
+                if (y == root.need_most_value_char)
+                    h = input_h.placeholder - input_y.placeholder;
+                else
+                    h = input_h.placeholder - parseInt(input_y.text);
+            }
+            if (x == root.need_most_value_char)
+                x = input_x.placeholder;
+            if (y == root.need_most_value_char)
+                y = input_y.placeholder;
+
+            let crop_str = `${w}:${h}:${x}:${y}`;
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "crop=${crop_str}" "${out_path}"`);
             cmd.exec_ffmpeg();
         }
@@ -273,13 +319,13 @@ Item {
         running: true
 
         onTriggered: {
-            if (!input_x.hasFocus && parseInt(input_x.text) != rect.rect_X && rect.mouse_pressed)
+            if (!input_x.hasFocus && parseInt(input_x.text) != rect.rect_X && rect.mouse_pressed && input_x.text != root.need_most_value_char)
                 input_x.text = root.cvt_rect_to_input_with_w(rect.rect_X);
-            if (!input_y.hasFocus && parseInt(input_y.text) != rect.rect_Y && rect.mouse_pressed)
+            if (!input_y.hasFocus && parseInt(input_y.text) != rect.rect_Y && rect.mouse_pressed && input_y.text != root.need_most_value_char)
                 input_y.text = root.cvt_rect_to_input_with_h(rect.rect_Y);
-            if (!input_w.hasFocus && parseInt(input_w.text) != rect.rect_X1 - rect.rect_X && rect.mouse_pressed)
+            if (!input_w.hasFocus && parseInt(input_w.text) != rect.rect_X1 - rect.rect_X && rect.mouse_pressed && input_w.text != root.need_most_value_char)
                 input_w.text = root.cvt_rect_to_input_with_w(rect.rect_X1 - rect.rect_X);
-            if (!input_h.hasFocus && parseInt(input_h.text) != rect.rect_Y1 - rect.rect_Y && rect.mouse_pressed)
+            if (!input_h.hasFocus && parseInt(input_h.text) != rect.rect_Y1 - rect.rect_Y && rect.mouse_pressed && input_h.text != root.need_most_value_char)
                 input_h.text = root.cvt_rect_to_input_with_h(rect.rect_Y1 - rect.rect_Y);
         }
     }
