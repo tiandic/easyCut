@@ -229,6 +229,7 @@ Item {
         nameFilters: [qsTr("音频文件 (*.mp3 *.wav *.aac *.flac *.ogg *.oga *.m4a *.wma *.opus *.ape *.ac3 *.eac3 *.dts *.amr *.aiff *.aif *.au *.ra *.mka *.tta *.wv *.caf *.dsf *.dff *.spx *.gsm *.voc *.mid *.midi *.pcm *.alac *.mp2 *.mp1 *.weba *.oga)"), qsTr("所有文件 (*)")]
         onAccepted: {
             selected_file = true;
+            list_data.clear();
             list_data.append({
                 "name": audio_path_select.selectedFile.toString()
             });
