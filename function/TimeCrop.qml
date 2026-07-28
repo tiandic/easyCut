@@ -10,9 +10,7 @@ Item {
 
     function check_input(text) {
         let l;
-        if (text == "")
-            return qsTr("输入不可为空!");
-        else if (text.split(',') > 2)
+        if (text.split(',') > 2)
             return qsTr("输入最多只能有一个逗号!");
         else if (!(l = check_limit(text, "1234567890,:"))[0])
             return qsTr(`输入不应包含字符 '${l[1]}'`);
@@ -110,6 +108,9 @@ Item {
                 } else if (root.cvt_time_to_ms(input_start.text) > root.cvt_time_to_ms(input_end.text)) {
                     msg.text = qsTr("开始时间不能大于结束时间!");
                     msg.open();
+                } else if (input_start.text == "" && input_end.text == "") {
+                    msg.text = qsTr("开始时间与结束时间不能都为空!");
+                    msg.open();
                 } else if (root.cvt_time_to_ms(input_start.text) == root.cvt_time_to_ms(input_end.text)) {
                     msg.text = qsTr("开始时间不能等于结束时间!");
                     msg.open();
@@ -141,7 +142,15 @@ Item {
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
             let file_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -ss ${input_start.text} -to ${input_end.text} "${out_path}"`);
+            let _ss = "";
+            let _to = "";
+
+            if (input_start.text != "")
+                _ss = `-ss ${input_start.text}`;
+            if (input_end.text != "")
+                _to = `-to ${input_end.text}`;
+
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" ${_ss} ${_to} "${out_path}"`);
             cmd.exec_ffmpeg();
         }
     }
