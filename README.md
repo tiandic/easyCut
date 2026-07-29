@@ -81,7 +81,7 @@ cmake --build build
 cmake --install build
 
 # 复制msys2环境的依赖到 easyCut 所在目录中
-cd "/c/Users/${USER}/Desktop/easyCut"
+cd "/c/Users/${USER}/Desktop/easyCut/bin"
 ldd ./appeasyCut.exe | grep '/mingw64/' | awk '{print $3}' | xargs -I{} cp -n {} .
 
 # 运行
