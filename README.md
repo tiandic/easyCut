@@ -75,10 +75,10 @@ cd build
 针对`Windows`的优化已在计划中
 
 ## 特殊功能说明
-需要特别提到的功能是 [最值](https://github.com/tiandic/easyCut/wiki/101.%E6%9C%80%E5%80%BC)
+需要特别提到的功能是 [最值](https://github.com/tiandic/easyCut/wiki/901.%E6%9C%80%E5%80%BC)
 
 当`按时间裁剪`视频时,有没有从特定时间开始,一直到视频末尾的需求?
 
 如果有, 那么只需要在`开始时间`的输入框中填写这个特定时间, 然后在`结束输入框`中填写`-`即可, 无须手动填写视频末尾时间, 软件处理好一切
 
-处理`按时间裁剪`功能外, 其他视频处理功能也有 `最值` 选项,详细见 [最值 - wiki](https://github.com/tiandic/easyCut/wiki/101.%E6%9C%80%E5%80%BC)
+处理`按时间裁剪`功能外, 其他视频处理功能也有 `最值` 选项,详细见 [最值 - wiki](https://github.com/tiandic/easyCut/wiki/901.%E6%9C%80%E5%80%BC)
