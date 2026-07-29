@@ -82,14 +82,35 @@ target_link_libraries(appeasyCut
 add_subdirectory(exec_cmd)
 add_subdirectory(exec_cmd_gui)
 
+if(WIN32)
+  qt_generate_deploy_qml_app_script(
+    TARGET appeasyCut
+    OUTPUT_SCRIPT deploy_script
+    MACOS_BUNDLE_POST_BUILD
+    NO_UNSUPPORTED_PLATFORM_ERROR
+    DEPLOY_USER_QML_MODULES_ON_UNSUPPORTED_PLATFORM
+  )
+  install(SCRIPT ${deploy_script})
+endif()
+
 install(TARGETS appeasyCut
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-install(TARGETS exec_cmd
+
+if(WIN32)
+  install(TARGETS exec_cmd
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  )
+  install(TARGETS appexec_cmd_gui
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+else()
+  install(TARGETS exec_cmd
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/easyCut
-)
-install(TARGETS appexec_cmd_gui
+  )
+  install(TARGETS appexec_cmd_gui
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}/easyCut
-)
+  )
+endif()
