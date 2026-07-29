@@ -30,6 +30,24 @@ Item {
         return [true, ""];
     }
 
+    function get_end_subtitles_time() {
+        // 获取 srt 时间格式的视频末尾时间
+        let t = videoPlay.video_provider.get_total_time();
+        // 毫秒
+        let ms = (t % 100) * 10;
+        t = parseInt(t / 100);
+        // 秒
+        let s = t % 60;
+        t = parseInt(t / 60);
+        // 分钟
+        let m = t % 60;
+        t = parseInt(t / 60);
+        // 小时
+        let h = t;
+
+        return `${h.toString().padStart(2, 0)}:${m.toString().padStart(2, 0)}:${s.toString().padStart(2, 0)},${ms.toString().padStart(3, 0)}`;
+    }
+
     function cvt_time_to_ms(t) {
         // 转换标准时间格式为毫秒数
         // 支持如下格式:
@@ -57,7 +75,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
 
-        width: 320
+        width: 340
         spacing: 5
 
         Item {
@@ -88,14 +106,14 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 label: qsTr("开始时间")
-                placeholder: "00:10:54"
+                placeholder: "00:00:00"
             }
             Com.LabelInput2 {
                 id: input_end
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 label: qsTr("结束时间")
-                placeholder: "00:15:04"
+                placeholder: root.get_end_subtitles_time()
             }
         }
 
