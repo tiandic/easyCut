@@ -64,9 +64,8 @@ make install
 ```
 
 #### Windows
-
+使用 msys2 mingw64 构建
 ```
-# msys2 mingw
 pacman -S mingw-w64-x86_64-toolchain
 pacman -S mingw-w64-x86_64-cmake
 pacman -S mingw-w64-x86_64-qt6-declarative
