@@ -8,11 +8,14 @@ Item {
     property string video_path: ""
     property var stackView
 
+    // 当输入为 need_most_value_char 时, 指定输入框应该被替换为最值, 最值由输入框的 placeholder 属性决定
+    property string need_most_value_char: '-'
+
     function check_input(text) {
         let l;
         if (text.split(',') > 2)
             return qsTr("输入最多只能有一个逗号!");
-        else if (!(l = check_limit(text, "1234567890,:"))[0])
+        else if (!(l = check_limit(text, "1234567890,:" + need_most_value_char))[0])
             return qsTr(`输入不应包含字符 '${l[1]}'`);
         return "";
     }
@@ -145,9 +148,9 @@ Item {
             let _ss = "";
             let _to = "";
 
-            if (input_start.text != "")
+            if (input_start.text != root.need_most_value_char)
                 _ss = `-ss ${input_start.text}`;
-            if (input_end.text != "")
+            if (input_end.text != root.need_most_value_char)
                 _to = `-to ${input_end.text}`;
 
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" ${_ss} ${_to} "${out_path}"`);
