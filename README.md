@@ -70,7 +70,7 @@ pacman -S mingw-w64-x86_64-toolchain
 pacman -S mingw-w64-x86_64-cmake
 pacman -S mingw-w64-x86_64-qt6-declarative
 pacman -S mingw-w64-x86_64-qt6-multimedia
-pacman -S mingw-w64-x86_64-ffmpeg
+pacman -S --needed mingw-w64-x86_64-ffmpeg
 ```
 
 ```
