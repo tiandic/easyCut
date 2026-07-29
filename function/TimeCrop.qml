@@ -13,7 +13,9 @@ Item {
 
     function check_input(text) {
         let l;
-        if (text.split(',') > 2)
+        if (text == "")
+            return qsTr("输入不可为空!");
+        else if (text.split(',') > 2)
             return qsTr("输入最多只能有一个逗号!");
         else if (!(l = check_limit(text, "1234567890,:" + need_most_value_char))[0])
             return qsTr(`输入不应包含字符 '${l[1]}'`);
@@ -110,9 +112,6 @@ Item {
                     msg.open();
                 } else if (root.cvt_time_to_ms(input_start.text) > root.cvt_time_to_ms(input_end.text)) {
                     msg.text = qsTr("开始时间不能大于结束时间!");
-                    msg.open();
-                } else if (input_start.text == "" && input_end.text == "") {
-                    msg.text = qsTr("开始时间与结束时间不能都为空!");
                     msg.open();
                 } else if (root.cvt_time_to_ms(input_start.text) == root.cvt_time_to_ms(input_end.text)) {
                     msg.text = qsTr("开始时间不能等于结束时间!");
