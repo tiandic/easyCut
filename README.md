@@ -34,7 +34,9 @@
 - [7.提取所有帧](./7.提取所有帧)
 - [最值](./901.最值)
 
-## build
+## 安装
+
+### 从构建安装
 依赖:
 - `qt6-declarative`
 - `qt6-multimedia`
@@ -45,7 +47,7 @@
 - `libswresample`
 - `libavfilter`
 
-### Linux
+#### Linux
 ```
 # arch
 sudo pacman --needed -S base-devel cmake qt6-declarative qt6-multimedia ffmpeg
@@ -61,7 +63,7 @@ make -j$(nproc)
 make install
 ```
 
-### Windows
+#### Windows
 
 ```
 # msys2 mingw
@@ -73,12 +75,20 @@ pacman -S mingw-w64-x86_64-ffmpeg
 ```
 
 ```
-cmake -B build -G Ninja
+# 输出到桌面
+cmake -B build "-DCMAKE_INSTALL_PREFIX=/c/Users/${USER}/Desktop/easyCut"
 cmake --build build
 
-cd build
-./appeasyCut
+cmake --install build
+
+# 复制msys2环境的依赖到 easyCut 所在目录中
+cd "/c/Users/${USER}/Desktop/easyCut"
+ldd ./appeasyCut.exe | grep '/mingw64/' | awk '{print $3}' | xargs -I{} cp -n {} .
+
+# 运行
+./appeasyCut.exe
 ```
+
 ## 关于 Windows
 软件在`Windows`下的体验相比于`Linux`较差
 
