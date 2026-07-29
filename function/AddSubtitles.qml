@@ -12,6 +12,9 @@ Item {
     property string subtitles_file_path: "" // 临时字幕文件路径
     property var stackView
 
+    // 当输入为 need_most_value_char 时, 指定输入框应该被替换为最值, 最值由输入框的 placeholder 属性决定
+    property string need_most_value_char: '-'
+
     property string default_start_time: "00:00:00,000"
     property string default_end_time: "00:00:04,000"
 
@@ -21,11 +24,13 @@ Item {
             return qsTr("输入不可为空!");
         else if (text.split(',') > 2)
             return qsTr("输入必须有且只有一个逗号!");
-        else if (!(l = check_limit(text, "1234567890,:"))[0])
+        else if (!(l = check_limit(text, "1234567890,:" + need_most_value_char))[0])
             return qsTr(`输入不应包含字符 '${l[1]}'`);
-        else if (text.length < default_start_time.length)
+        else if (text.indexOf(need_most_value_char) != -1 && text.length != 1)
+            return qsTr(`如果希望选取最值, 请只填写 '${need_most_value_char}' 字符, 否则需要去掉 '${need_most_value_char}'`);
+        else if (text != need_most_value_char && text.length < default_start_time.length)
             return qsTr(`输入长度过短! 正确长度应为 ${default_start_time.length}`);
-        else if (text.length > default_start_time.length)
+        else if (text != need_most_value_char && text.length > default_start_time.length)
             return qsTr(`输入长度过长! 正确长度应为 ${default_start_time.length}`);
         return "";
     }
@@ -36,6 +41,24 @@ Item {
                 return [false, text[i]];
         }
         return [true, ""];
+    }
+
+    function get_end_subtitles_time() {
+        // 获取 srt 时间格式的视频末尾时间
+        let t = videoPlay.video_provider.get_total_time();
+        // 毫秒
+        let ms = (t % 100) * 10;
+        t = parseInt(t / 100);
+        // 秒
+        let s = t % 60;
+        t = parseInt(t / 60);
+        // 分钟
+        let m = t % 60;
+        t = parseInt(t / 60);
+        // 小时
+        let h = t;
+
+        return `${h.toString().padStart(2, 0)}:${m.toString().padStart(2, 0)}:${s.toString().padStart(2, 0)},${ms.toString().padStart(3, 0)}`;
     }
 
     ListModel {
@@ -266,7 +289,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
                     label: qsTr("开始时间")
-                    placeholder: qsTr("00:00:00,000")
+                    placeholder: "00:00:00,000"
                     text: root.default_start_time
                 }
                 Com.LabelInput2 {
@@ -274,7 +297,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
                     label: qsTr("结束时间")
-                    placeholder: qsTr("00:00:04,000")
+                    placeholder: root.get_end_subtitles_time()
                     text: root.default_end_time
                 }
             }
@@ -295,16 +318,24 @@ Item {
                     } else if ((m = root.check_input(input_end.text)) != "") {
                         msg.text = qsTr("字幕的结束时间格式错误: ") + m;
                         msg.open();
-                    } else if (input_start.text == input_end.text) {
+                    } else if (input_start.text == input_end.text && input_start.text != root.need_most_value_char) {
                         msg.text = qsTr("字幕的开始时间与结束时间不能相同!");
                         msg.open();
                     } else if (input_subtitles.text == "") {
                         msg.text = qsTr("添加的字幕不应为空!");
                         msg.open();
                     } else {
+                        let start_time = input_start.text;
+                        let end_time = input_end.text;
+
+                        if (start_time === root.need_most_value_char)
+                            start_time = input_start.placeholder;
+                        if (end_time === root.need_most_value_char)
+                            end_time = input_end.placeholder;
+
                         list_data.append({
-                            "start_time": input_start.text,
-                            "end_time": input_end.text,
+                            "start_time": start_time,
+                            "end_time": end_time,
                             "subtitles": input_subtitles.text
                         });
                         input_start.text = input_end.text;
