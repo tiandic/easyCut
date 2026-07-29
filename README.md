@@ -35,6 +35,11 @@
 - [最值](./901.最值)
 
 ## 安装
+### 从 AUR 安装
+```
+yay -S easyCut
+```
+
 ### 从 [releases](https://github.com/tiandic/easyCut/releases) 安装
 #### Linux
 安装依赖
