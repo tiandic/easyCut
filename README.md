@@ -42,16 +42,16 @@
 # arch
 sudo pacman -S --needed qt6-declarative qt6-multimedia ffmpeg
 ```
-对应文件为`easyCut-<version>-linux-amd64.zip`
+对应文件为`easyCut-<version>-linux-amd64.*`
 
 解压后,其中的 `bin/appeasyCut` 即软件本体
 
 #### Windows
 在 [releases](https://github.com/tiandic/easyCut/releases) 下载对应文件
 
-如果你的系统安装了 `ffmpeg` 并且添加到了`PATH`, 那么可以选择 `easyCut-<version>-windows-amd64.zip`
+如果你的系统安装了 `ffmpeg` 并且添加到了`PATH`, 那么可以选择 `easyCut-<version>-windows-amd64.*`
 
-如果没有, 那么就需要下载 `easyCut-<version>-with-ffmpeg-windows-amd64.zip`
+如果没有, 那么就需要下载 `easyCut-<version>-with-ffmpeg-windows-amd64.*`
 
 解压后,其中的 `bin/appeasyCut.exe` 即软件本体
 
