@@ -181,13 +181,13 @@ Item {
             onClicked: {
                 if (!root.check_input_and_open_msgbox(input_x.text) || !root.check_input_and_open_msgbox(input_y.text) || !root.check_input_and_open_msgbox(input_w.text) || !root.check_input_and_open_msgbox(input_h.text))
                     return;
-                else if (root.cvt_input_to_rect_with_h(parseInt(input_x.text)) > videoPlay.video_width)
+                else if (parseInt(input_x.text) > videoPlay.video_width)
                     root.set_text_and_open_msgbox(qsTr(`矩形 x 坐标过大! 视频宽度为: ${videoPlay.video_width}`));
-                else if (root.cvt_input_to_rect_with_w(parseInt(input_y.text)) > videoPlay.video_height)
+                else if (parseInt(input_y.text) > videoPlay.video_height)
                     root.set_text_and_open_msgbox(qsTr(`矩形 y 坐标过大! 视频高度为: ${videoPlay.video_height}`));
-                else if (root.cvt_input_to_rect_with_h(parseInt(input_h.text)) > videoPlay.video_height)
+                else if (parseInt(input_h.text) > videoPlay.video_height)
                     root.set_text_and_open_msgbox(qsTr(`矩形过高! 视频高度为: ${videoPlay.video_height}`));
-                else if (root.cvt_input_to_rect_with_w(parseInt(input_w.text)) > videoPlay.video_width)
+                else if (parseInt(input_w.text) > videoPlay.video_width)
                     root.set_text_and_open_msgbox(qsTr(`矩形过宽! 视频宽度为: ${videoPlay.video_width}`));
                 else
                     save_path_select.dialog.open();
