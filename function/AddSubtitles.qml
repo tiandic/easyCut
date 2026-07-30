@@ -384,7 +384,9 @@ Item {
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${root.subtitles_file_path}" -c:s ${subtitle_codec} ${out_path}`);
             else
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "subtitles=${root.subtitles_file_path}" ${out_path}`);
-            cmd.exec_ffmpeg(root.subtitles_file_path);
+            // cmd.exec_ffmpeg(root.subtitles_file_path);
+            cmd.clean_tmp_file("subtitles.srt",10);
+            cmd.exec_ffmpeg();
         }
     }
 

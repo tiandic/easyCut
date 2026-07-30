@@ -14,9 +14,11 @@
 #include <QObject>
 #include <QStandardPaths>
 #include <QtQml>
+#include <algorithm>
 #include <functional>
 
 #include "config.h"
+#include "qtypes.h"
 #include "qurl.h"
 
 class Ffmpeg_cmd : public QObject {
@@ -77,6 +79,41 @@ public:
       return;
     tmp_files.removeAll(path);
     QFile::remove(path);
+  }
+
+  Q_INVOKABLE void clean_tmp_file(QString file_tails, int count = -1) {
+    // 根据指定文件名的末尾, 清除旧文件
+    // file_path: 当文件名末尾为 file_path 时, 被列为匹配文件
+    // count: 保留的旧文件数量, -1 为不保留
+    QDir dir(get_durability_tmp_dir());
+    QFileInfoList l = dir.entryInfoList(QDir::Files);
+    QList<QString> paths;
+
+    for (QFileInfo file_info : l) {
+      if (file_info.fileName().endsWith(file_tails) &&
+          file_info.fileName().contains('_'))
+        paths.append(file_info.filePath());
+    }
+
+    if (count == -1) {
+      for (QString path : paths)
+        QFile::remove(path);
+      return;
+    }
+
+    if (count <= 0)
+      return;
+
+    std::sort(paths.begin(), paths.end(),
+              [](const QString &s1, const QString &s2) {
+                qint64 time1 = s1.split('_')[0].toLongLong();
+                qint64 time2 = s2.split('_')[0].toLongLong();
+
+                return time1 > time2;
+              });
+
+    for (int i = 0; i < (paths.length() - count); i++)
+      QFile::remove(paths[i]);
   }
 
   Q_INVOKABLE QList<QString> scan_dir(QString dir_path) {
