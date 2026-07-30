@@ -86,3 +86,4 @@ CMakeLists.txt.user*
 .clangd
 .vscode/
 compile_flags.txt
+.cache/

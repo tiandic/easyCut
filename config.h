@@ -6,16 +6,22 @@
 #include "qfiledevice.h"
 #include "qlogging.h"
 #include "qstandardpaths.h"
+
 class Config_file_ffmpeg_cmd {
 public:
   Config_file_ffmpeg_cmd(QString config_path = "") {
     m_config_path = config_path;
+    history_file = new QFile(get_history_path());
+    history_file->open(QIODevice::WriteOnly | QIODevice::Append |
+                       QIODevice::Text);
     init(m_config_path, true);
   }
 
   void push_ffmpeg_cmd(QString cmd) {
     sync_from_file();
     qInfo() << "push cmd:" << cmd;
+    QTextStream out(history_file);
+    out << cmd << '\n';
     __push_ffmpeg_cmd(cmd);
     save_ffmpeg_cmd();
   }
@@ -31,12 +37,16 @@ public:
     return "";
   }
 
-  ~Config_file_ffmpeg_cmd() { uninit(); }
+  ~Config_file_ffmpeg_cmd() {
+    uninit();
+    history_file->close();
+  }
 
 private:
   QList<QString> command_list;
   QFile *file;
   QString m_config_path;
+  QFile *history_file;
 
   void save_ffmpeg_cmd() {
     file->resize(0);
@@ -85,6 +95,12 @@ private:
         QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(dir);
     return dir;
+  }
+
+  QString get_history_dir() { return get_config_dir(); }
+
+  QString get_history_path() {
+    return QDir(get_history_dir()).filePath("history");
   }
 };
 
