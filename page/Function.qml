@@ -10,6 +10,95 @@ Item {
     property string video_path: ""
     property var stackView
 
+    function can_copy(source_ext, target_ext) {
+        let containerCodecSupport = {
+            mp4: {
+                video: ["h264", "hevc", "mpeg4", "mpeg2video", "av1"],
+                audio: ["aac", "mp3", "ac3", "eac3", "alac", "opus"]
+            },
+            mov: {
+                video: ["h264", "hevc", "mpeg4", "prores", "mjpeg", "dvvideo"],
+                audio: ["aac", "mp3", "ac3", "alac", "pcm_s16le", "pcm_s24le"]
+            },
+            mkv: {
+                video: ["h264", "hevc", "vp8", "vp9", "av1", "mpeg2video", "mpeg4", "theora", "prores"],
+                audio: ["aac", "mp3", "ac3", "eac3", "dts", "truehd", "flac", "opus", "vorbis", "pcm_s16le"]
+            },
+            webm: {
+                video: ["vp8", "vp9", "av1"],
+                audio: ["opus", "vorbis"]
+            },
+            ts: {
+                video: ["h264", "hevc", "mpeg2video"],
+                audio: ["aac", "ac3", "mp3"]
+            },
+            avi: {
+                video: ["mpeg4", "mjpeg", "h264"],
+                audio: ["mp3", "pcm_s16le", "ac3"]
+            },
+            flv: {
+                video: ["h264", "vp6", "flv1"],
+                audio: ["aac", "mp3"]
+            },
+            ogg: {
+                video: ["theora"],
+                audio: ["vorbis", "opus", "flac"]
+            },
+            mp3: {
+                video: [],
+                audio: ["mp3"]
+            },
+            m4a: {
+                video: [],
+                audio: ["aac", "alac", "ac3", "eac3"]
+            },
+            aac: {
+                video: [],
+                audio: ["aac"]
+            },
+            wav: {
+                video: [],
+                audio: ["pcm_s16le", "pcm_s24le", "pcm_s32le", "pcm_f32le", "adpcm_ima_wav", "mp3", "ac3"]
+            },
+            flac: {
+                video: [],
+                audio: ["flac"]
+            },
+            alac: {
+                video: [],
+                audio: ["alac"]
+            },
+            opus: {
+                video: [],
+                audio: ["opus"]
+            },
+            wma: {
+                video: [],
+                audio: ["wmav1", "wmav2", "wmapro", "wmalossless"]
+            },
+            amr: {
+                video: [],
+                audio: ["amr_nb", "amr_wb"]
+            },
+            aiff: {
+                video: [],
+                audio: ["pcm_s16be", "pcm_s24be", "pcm_s32be", "pcm_alaw", "pcm_mulaw"]
+            },
+            caf: {
+                video: [],
+                audio: ["alac", "aac", "pcm_s16le", "pcm_s24le", "pcm_f32le", "opus"]
+            },
+            ac3: {
+                video: [],
+                audio: ["ac3", "eac3"]
+            },
+            dts: {
+                video: [],
+                audio: ["dts"]
+            }
+        };
+    }
+
     // 功能列表
     ListModel {
         id: func_list_data

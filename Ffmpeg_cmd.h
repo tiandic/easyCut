@@ -4,14 +4,21 @@
 #include "qdebug.h"
 #include "qdir.h"
 #include "qfileinfo.h"
+#include "qjsonarray.h"
+#include "qjsondocument.h"
+#include "qjsonobject.h"
+#include "qjsonparseerror.h"
+#include "qjsonvalue.h"
 #include "qlist.h"
 #include "qlogging.h"
+#include "qmap.h"
 #include "qobject.h"
-#include "qprocess.h"
+#include "qstringview.h"
 #include "qtmetamacros.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QObject>
+#include <QProcess>
 #include <QStandardPaths>
 #include <QtQml>
 #include <algorithm>
@@ -20,6 +27,8 @@
 #include "config.h"
 #include "qtypes.h"
 #include "qurl.h"
+
+#include "codec_descriptors.h"
 
 class Ffmpeg_cmd : public QObject {
   Q_OBJECT
@@ -130,6 +139,18 @@ public:
     return ret;
   }
 
+  Q_INVOKABLE bool can_copy(QString source_path, QString target_ext,
+                            QString mode = "video") {
+    // 判断是否可以直接复制,而不用重新编码
+    Codec_info info = get_codec_info(source_path);
+    QMap<QString, QList<QString>> codecs = codec_supports.value(target_ext);
+
+    if (mode == "video")
+      return codecs.value("video").contains(info.video_codec);
+    else
+      return codecs.value("audio").contains(info.audio_codec);
+  }
+
   Q_INVOKABLE void exec_ffmpeg(QString rm_path = "") {
     // rm_path 会在ffmpeg命令正常结束后被删除
     QString exec_path = get_exec_path();
@@ -153,6 +174,10 @@ private:
   QList<QString> exec_gui_paths = {"appexec_cmd_gui", "appexec_cmd_gui.exe",
                                    "exec_cmd_gui/appexec_cmd_gui",
                                    "exec_cmd_gui/appexec_cmd_gui.exe"};
+  struct Codec_info {
+    QString video_codec;
+    QString audio_codec;
+  };
 
   QString find_exists_from_paths(QList<QString> paths) {
     QString path;
@@ -183,5 +208,42 @@ private:
         QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(dir);
     return dir;
+  }
+
+  Codec_info get_codec_info(const QString &path) {
+    Codec_info codec_info;
+    QProcess process;
+    QList<QString> args = {
+        "-v",   "error", "-show_entries", "stream=codec_name,codec_type", "-of",
+        "json", path};
+
+    process.start("ffprobe", args);
+    process.waitForFinished(-1);
+
+    QByteArray out = process.readAllStandardOutput();
+
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(out, &error);
+    if (error.error != QJsonParseError::NoError) {
+      qWarning() << "ffprobe out JSON parsing failed!" << error.errorString();
+      return codec_info;
+    }
+
+    QJsonObject root_obj = doc.object();
+    QJsonArray streams = root_obj["streams"].toArray();
+
+    for (const QJsonValue &stream_value : streams) {
+      QJsonObject stream_obj = stream_value.toObject();
+
+      QString type = stream_obj["codec_type"].toString();
+      QString name = stream_obj["codec_name"].toString();
+
+      if (type == "video")
+        codec_info.video_codec = name;
+      else
+        codec_info.audio_codec = name;
+    }
+
+    return codec_info;
   }
 };
