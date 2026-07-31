@@ -36,7 +36,7 @@
 ## 安装:
 ### 1. 从 AUR 安装
 ```
-yay -S easyCut
+yay -S easycut
 ```
 
 ### 2. 从 [releases](https://github.com/tiandic/easyCut/releases) 安装
