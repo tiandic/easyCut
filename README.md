@@ -23,8 +23,7 @@
 
 如有其他希望添加的功能, 请在`issues`中提出
 
-## 功能页面预览
-功能页面预览及说明:
+## 功能页面预览及说明:
 - [1.画面裁剪](./1.画面裁剪)
 - [2.视频裁剪](./2.视频裁剪)
 - [3.视频拼接](./3.视频拼接)
@@ -34,14 +33,14 @@
 - [7.提取所有帧](./7.提取所有帧)
 - [最值](./901.最值)
 
-## 安装
-### 从 AUR 安装
+## 安装:
+### 1. 从 AUR 安装
 ```
 yay -S easyCut
 ```
 
-### 从 [releases](https://github.com/tiandic/easyCut/releases) 安装
-#### Linux
+### 2. 从 [releases](https://github.com/tiandic/easyCut/releases) 安装
+#### 2.1 Linux
 安装依赖
 ```
 # arch
@@ -51,7 +50,7 @@ sudo pacman -S --needed qt6-declarative qt6-multimedia ffmpeg
 
 解压后,其中的 `bin/appeasyCut` 即软件本体
 
-#### Windows
+#### 2.2 Windows
 在 [releases](https://github.com/tiandic/easyCut/releases) 下载对应文件
 
 如果你的系统安装了 `ffmpeg` 并且添加到了`PATH`, 那么可以选择 `easyCut-<version>-windows-amd64.*`
@@ -60,7 +59,7 @@ sudo pacman -S --needed qt6-declarative qt6-multimedia ffmpeg
 
 解压后,其中的 `bin/appeasyCut.exe` 即软件本体
 
-### 从构建安装
+### 3. 从构建安装
 依赖:
 - `qt6-declarative`
 - `qt6-multimedia`
@@ -71,7 +70,7 @@ sudo pacman -S --needed qt6-declarative qt6-multimedia ffmpeg
 - `libswresample`
 - `libavfilter`
 
-#### Linux
+#### 3.1 Linux
 ```
 # arch
 sudo pacman -S --needed base-devel cmake qt6-declarative qt6-multimedia ffmpeg
@@ -87,7 +86,7 @@ make -j$(nproc)
 make install
 ```
 
-#### Windows
+#### 3.2 Windows
 使用 msys2 mingw64 构建
 ```
 pacman -S --needed --noconfirm mingw-w64-x86_64-toolchain
