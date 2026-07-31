@@ -77,13 +77,12 @@ sudo pacman -S --needed base-devel cmake qt6-declarative qt6-multimedia ffmpeg
 ```
 
 ```
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
+cmake -B build
+cmake --build build
 
-./appeasyCut
+./build/appeasyCut
 # or
-make install
+cmake --install build
 ```
 
 #### 3.2 Windows
