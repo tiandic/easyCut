@@ -18,29 +18,44 @@ Item {
     property string default_start_time: "00:00:00,000"
     property string default_end_time: "00:00:04,000"
 
+    // 用于判断输入的字幕时间是否发生重叠
+    property list<string> already_use_start_times: []
+    property list<string> already_use_end_times: []
+
     function check_input(text) {
         let l;
         if (text == "")
             return qsTr("输入不可为空!");
         else if (text.split(',') > 2)
             return qsTr("输入必须有且只有一个逗号!");
-        else if (!(l = check_limit(text, "1234567890,:" + need_most_value_char))[0])
-            return qsTr(`输入不应包含字符 '${l[1]}'`);
+        else if ((l = check_limit(text, "1234567890,:" + need_most_value_char)) != "")
+            return qsTr(`输入不应包含字符 '${l}'`);
         else if (text.indexOf(need_most_value_char) != -1 && text.length != 1)
             return qsTr(`如果希望选取最值, 请只填写 '${need_most_value_char}' 字符, 否则需要去掉 '${need_most_value_char}'`);
         else if (text != need_most_value_char && text.length < default_start_time.length)
             return qsTr(`输入长度过短! 正确长度应为 ${default_start_time.length}`);
         else if (text != need_most_value_char && text.length > default_start_time.length)
             return qsTr(`输入长度过长! 正确长度应为 ${default_start_time.length}`);
+        else if ((l = check_time(text)) != "")
+            return (`输入不应在 ${l} 之间`);
         return "";
     }
 
     function check_limit(text, limit_chars) {
         for (let i = 0; i < text.length; i++) {
             if (limit_chars.indexOf(text[i]) == -1)
-                return [false, text[i]];
+                return text[i];
         }
-        return [true, ""];
+        return "";
+    }
+
+    function check_time(t) {
+        t = cvt_time_to_ms(t);
+        for (let i = 0; i < already_use_start_times.length; i++) {
+            if (t > cvt_time_to_ms(already_use_start_times[i]) && t < cvt_time_to_ms(already_use_end_times[i]))
+                return `${already_use_start_times[i]} --> ${already_use_end_times[i]}`;
+        }
+        return "";
     }
 
     function get_end_subtitles_time() {
@@ -59,6 +74,59 @@ Item {
         let h = t;
 
         return `${h.toString().padStart(2, 0)}:${m.toString().padStart(2, 0)}:${s.toString().padStart(2, 0)},${ms.toString().padStart(3, 0)}`;
+    }
+
+    function cvt_time_to_ms(t) {
+        // 转换标准时间格式为毫秒数
+        // 支持如下格式:
+        // 4:11:40 or 4:11:40,560 or 11:11 or 11:11,700 or 12,560 or 4 (只输入一个数字默认为秒)
+        let ms = 0;
+        let i; // 计算到了第几位
+
+        if (t.indexOf(',') != -1) {
+            let t_and_ms = t.split(",");
+            t = t_and_ms[0];
+            ms = parseInt(t_and_ms[1]);
+        }
+        for (i = 0; (i <= 2 && t.indexOf(':') != -1); i++) {
+            let t2_list = t.split(":");
+            ms += parseInt(t2_list.pop()) * (60 ** i) * 1000;
+            t = t2_list.join(':');
+        }
+        ms += parseInt(t) * (60 ** i) * 1000;
+        return ms;
+    }
+
+    function get_extension(filename) {
+        if (!filename)
+            return '';
+        console.debug("get_extension():", filename);
+        const idx = filename.lastIndexOf('.');
+        if (idx === -1 || idx === 0)
+            return '';
+        return filename.slice(idx + 1);
+    }
+
+    function get_subtitle_codec(ext) {
+        const extension = ext.toLowerCase().replace(/^\./, '');
+
+        const movTextContainers = ['mp4', 'm4v', 'mov', 'qt', '3gp', '3g2'];
+
+        const copyContainers = ['mkv', 'mka'];
+
+        const webvttContainers = ['webm'];
+
+        if (movTextContainers.includes(extension)) {
+            return 'mov_text';
+        }
+        if (copyContainers.includes(extension)) {
+            return 'copy';
+        }
+        if (webvttContainers.includes(extension)) {
+            return 'webvtt';
+        }
+
+        return null;
     }
 
     ListModel {
@@ -103,38 +171,6 @@ Item {
             }
             return true;
         }
-    }
-
-    function get_extension(filename) {
-        if (!filename)
-            return '';
-        console.debug("get_extension():", filename);
-        const idx = filename.lastIndexOf('.');
-        if (idx === -1 || idx === 0)
-            return '';
-        return filename.slice(idx + 1);
-    }
-
-    function get_subtitle_codec(ext) {
-        const extension = ext.toLowerCase().replace(/^\./, '');
-
-        const movTextContainers = ['mp4', 'm4v', 'mov', 'qt', '3gp', '3g2'];
-
-        const copyContainers = ['mkv', 'mka'];
-
-        const webvttContainers = ['webm'];
-
-        if (movTextContainers.includes(extension)) {
-            return 'mov_text';
-        }
-        if (copyContainers.includes(extension)) {
-            return 'copy';
-        }
-        if (webvttContainers.includes(extension)) {
-            return 'webvtt';
-        }
-
-        return null;
     }
 
     ColumnLayout {
@@ -263,6 +299,8 @@ Item {
                         text_: qsTr("X")
                         onClicked: {
                             list_data.remove(delegate_root.index);
+                            root.already_use_start_times.remove(delegate_root.start_time);
+                            root.already_use_end_times.remove(delegate_root.end_time);
                         }
                     }
                     Item {
@@ -338,6 +376,10 @@ Item {
                             "end_time": end_time,
                             "subtitles": input_subtitles.text
                         });
+
+                        root.already_use_start_times.push(start_time);
+                        root.already_use_end_times.push(end_time);
+
                         input_start.text = input_end.text;
                         input_end.text = input_start.text;
                         input_subtitles.text = "";
@@ -385,7 +427,7 @@ Item {
             else
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "subtitles=${root.subtitles_file_path}" ${out_path}`);
             // cmd.exec_ffmpeg(root.subtitles_file_path);
-            cmd.clean_tmp_file("subtitles.srt",10);
+            cmd.clean_tmp_file("subtitles.srt", 10);
             cmd.exec_ffmpeg();
         }
     }
