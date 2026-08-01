@@ -308,7 +308,12 @@ Item {
                 y = input_y.placeholder;
 
             let crop_str = `${w}:${h}:${x}:${y}`;
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "crop=${crop_str}" "${out_path}"`);
+
+            let copy_audio_codec = "";
+            if (cmd.can_copy(in_path, root.get_extension(out_path), "audio"))
+                copy_audio_codec = "-c:a copy";
+
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "crop=${crop_str}" ${copy_audio_codec} "${out_path}"`);
             cmd.exec_ffmpeg();
         }
     }
