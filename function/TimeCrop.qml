@@ -171,7 +171,7 @@ Item {
                 _to = `-to ${input_end.text}`;
 
             let copy_audio_codec = "";
-            if (cmd.can_copy(in_path, root.get_extension(out_path), "audio"))
+            if (cmd.can_copy(in_path, cmd.get_extension(out_path), "audio"))
                 copy_audio_codec = "-c:a copy";
 
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" ${_ss} ${_to} ${copy_audio_codec} "${out_path}"`);
