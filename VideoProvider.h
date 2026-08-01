@@ -57,7 +57,7 @@ public:
   explicit Ffmpeg_frame(QString local_video_path) {
     if (avformat_open_input(&fmt_ctx, local_video_path.toStdString().c_str(),
                             nullptr, nullptr) < 0) {
-      qFatal() << "Failed to open the '" << local_video_path << "' file!";
+      qFatal() << "Failed to open the " << local_video_path << " file!";
       has_error = true;
       return;
     }
