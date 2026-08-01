@@ -170,7 +170,11 @@ Item {
             if (input_end.text != root.need_most_value_char)
                 _to = `-to ${input_end.text}`;
 
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" ${_ss} ${_to} "${out_path}"`);
+            let copy_audio_codec = "";
+            if (cmd.can_copy(in_path, root.get_extension(out_path), "audio"))
+                copy_audio_codec = "-c:a copy";
+
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" ${_ss} ${_to} ${copy_audio_codec} "${out_path}"`);
             cmd.exec_ffmpeg();
         }
     }
