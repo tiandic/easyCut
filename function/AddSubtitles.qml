@@ -422,8 +422,18 @@ Item {
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
             let subtitle_codec = root.get_subtitle_codec(root.get_extension(out_path));
+            let copy_video_codec = "";
+            let copy_audio_codec = "";
+
+            if (cmd.can_copy(in_path, root.get_extension(out_path)))
+                copy_video_codec = "-c:v copy";
+            if (cmd.can_copy(in_path, root.get_extension(out_path), "audio"))
+                copy_audio_codec = "-c:a copy";
+
+            let copy_codec = `${copy_video_codec} ${copy_audio_codec}`;
+
             if (subtitle_codec)
-                cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${root.subtitles_file_path}" -c:s ${subtitle_codec} ${out_path}`);
+                cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${root.subtitles_file_path}" ${copy_codec} -c:s ${subtitle_codec} ${out_path}`);
             else
                 cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "subtitles=${root.subtitles_file_path}" ${out_path}`);
             // cmd.exec_ffmpeg(root.subtitles_file_path);
