@@ -211,7 +211,11 @@ Item {
         id: save_path_select
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${cmd.cvt_file_url_to_local(list_data.get(0).name)}" -filter_complex "[1:a]adelay=${cvt_time_to_ms(input_start_time.text)}:all=1[adelay_audio];[0:a][adelay_audio]amix=2:duration=first[a]" -map "0:v" -map "[a]" ${out_path}`);
+            let copy_video_codec = "";
+            if (cmd.can_copy(in_path, root.get_extension(out_path)))
+                copy_video_codec = "-c:v copy";
+
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -i "${cmd.cvt_file_url_to_local(list_data.get(0).name)}" -filter_complex "[1:a]adelay=${cvt_time_to_ms(input_start_time.text)}:all=1[adelay_audio];[0:a][adelay_audio]amix=2:duration=first[a]" -map "0:v" ${copy_video_codec} -map "[a]" ${out_path}`);
             cmd.exec_ffmpeg();
         }
     }
