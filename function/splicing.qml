@@ -243,8 +243,14 @@ Item {
             for (let i = 0; i < list_data.count; i++)
                 concats.push(cmd.cvt_file_url_to_local(list_data.get(i).name));
 
-            let concat_str = `"concat:${concats.join('|')}"`;
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i ${concat_str} "${out_path}"`);
+            let concat_str = "";
+            for (let i = 0; i < concats.length; i++)
+                concat_str += `file '${concats[i]}'\n`;
+
+            cmd.clean_tmp_file("concat.txt", 10);
+            let concat_file_path = cmd.echo_tmp_file("concat.txt", concat_str, true);
+
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -safe 0 -f concat -i "${concat_file_path}" "${out_path}"`);
             cmd.exec_ffmpeg();
         }
     }
