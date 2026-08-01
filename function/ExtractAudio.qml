@@ -90,9 +90,13 @@ Item {
             let in_path = cmd.cvt_file_url_to_local(videoPlay.video_path);
             let save_path = cmd.cvt_file_url_to_local(save_path_select.selectedFile.toString());
             if (save_path.indexOf('.') === -1)
-                save_path = save_path + '.mp3';
+                save_path = save_path + '.' + cmd.get_most_suitable_out_audio_ext(in_path);
 
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vn "${save_path}"`);
+            let copy_codec = "";
+            if (cmd.can_copy(in_path, root.get_extension(save_path), "audio"))
+                copy_codec = "-c:a copy";
+
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vn ${copy_codec} "${save_path}"`);
             cmd.exec_ffmpeg();
         }
     }

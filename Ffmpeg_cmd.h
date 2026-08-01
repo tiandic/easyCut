@@ -12,6 +12,7 @@
 #include "qlist.h"
 #include "qlogging.h"
 #include "qmap.h"
+#include "qnumeric.h"
 #include "qobject.h"
 #include "qstringview.h"
 #include "qtmetamacros.h"
@@ -142,6 +143,12 @@ public:
   Q_INVOKABLE bool can_copy(QString source_path, QString target_ext,
                             QString mode = "video") {
     // 判断是否可以直接复制,而不用重新编码
+    // params:
+    //    source_path: ffmpeg 输入文件路径
+    //    target_ext:  输出文件扩展名(例如: "mp4")
+    //    mode:        "video" 或者 "audio"二选一
+    //    如果为"video", 那么会判断视频流是否可以直接复制
+    //    如果为"audio", 则会判断音频流
     Codec_info info = get_codec_info(source_path);
     QMap<QString, QList<QString>> codecs = codec_supports.value(target_ext);
 
@@ -149,6 +156,66 @@ public:
       return codecs.value("video").contains(info.video_codec);
     else
       return codecs.value("audio").contains(info.audio_codec);
+  }
+
+  Q_INVOKABLE QString get_most_suitable_out_audio_ext(QString source_path) {
+    // 根据 source_path 判断输出的音频最适合的输出扩展名
+    // 返回值示例: "mp3"
+
+    // 所有支持 source_path 音频流编码的格式
+    QMap<QString, QList<QString>> all_codec_supports_audio;
+
+    // source_path 的格式支持的音频编码
+    QList<QString> source_codec_supports_audio =
+        codec_supports.value(get_extension(QFile(source_path).fileName()))
+            .value("audio");
+
+    Codec_info info = get_codec_info(source_path);
+    QList<QString> codec_supports_keys = codec_supports.keys();
+
+    // 填充 all_codec_supports_audio
+    for (int i = 0; i < codec_supports_keys.length(); i++) {
+      QString key = codec_supports_keys[i];
+      QList<QString> audio_codecs = codec_supports.value(key).value("audio");
+      if (codec_supports.value(key).value("video").isEmpty() &&
+          audio_codecs.contains(info.audio_codec))
+        all_codec_supports_audio[key] = audio_codecs;
+    }
+
+    // 给所有可能的输出扩展名排序
+    // 尽可能选取支持的音频编码与 source_path 的格式支持的音频编码相似程度最大的
+    // 以避免选择到冷门或者老旧的格式
+    QList<QString> exts = all_codec_supports_audio.keys();
+    QString ret = "";
+    std::sort(exts.begin(), exts.end(),
+              [this, all_codec_supports_audio,
+               source_codec_supports_audio](QString ext1, QString ext2) {
+                int ext1_overlap_count =
+                    get_overlap_count(source_codec_supports_audio,
+                                      all_codec_supports_audio[ext1]);
+                int ext2_overlap_count =
+                    get_overlap_count(source_codec_supports_audio,
+                                      all_codec_supports_audio[ext1]);
+
+                return qAbs(source_codec_supports_audio.length() -
+                            ext1_overlap_count) <
+                       qAbs(source_codec_supports_audio.length() -
+                            ext2_overlap_count);
+              });
+    if (!exts.isEmpty())
+      return exts[0];
+    return "";
+  }
+
+  Q_INVOKABLE QString get_extension(QString filename) {
+    // 获取输入文件名的扩展名
+    // 如: filename = "a.mp4"
+    //     return "mp4"
+    // 如果没有扩展名,则返回 ""
+
+    if (!filename.contains('.'))
+      return "";
+    return filename.split('.').last();
   }
 
   Q_INVOKABLE void exec_ffmpeg(QString rm_path = "") {
@@ -245,5 +312,15 @@ private:
     }
 
     return codec_info;
+  }
+
+  template <typename T> int get_overlap_count(QList<T> l1, QList<T> l2) {
+    // return: l2 有多少个元素在 l1 中出现
+    int count = 0;
+    for (T v : l2) {
+      if (l1.contains(v))
+        count++;
+    }
+    return count;
   }
 };
