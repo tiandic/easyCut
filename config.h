@@ -19,7 +19,7 @@ public:
 
   void push_ffmpeg_cmd(QString cmd) {
     sync_from_file();
-    qInfo() << "push cmd:" << cmd;
+    qInfo().noquote() << "push cmd:" << cmd;
     QTextStream out(history_file);
     out << cmd << '\n';
     __push_ffmpeg_cmd(cmd);
@@ -72,7 +72,7 @@ private:
     while (!in.atEnd()) {
       QString line = in.readLine();
       if (is_print)
-        qInfo() << "found command:" << line;
+        qInfo().noquote() << "found command:" << line;
       __push_ffmpeg_cmd(line);
     }
   }
