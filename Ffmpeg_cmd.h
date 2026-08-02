@@ -167,9 +167,11 @@ public:
     QMap<QString, QList<QString>> all_codec_supports_audio;
 
     // source_path 的格式支持的音频编码
-    QList<QString> source_codec_supports_audio =
-        codec_supports.value(get_extension(QFile(source_path).fileName()))
-            .value("audio");
+    QList<QString> source_codec_supports_audio;
+
+    QString ext = get_extension(QFile(source_path).fileName());
+    if (ext != "")
+      source_codec_supports_audio = codec_supports.value(ext).value("audio");
 
     Codec_info info = get_codec_info(source_path);
     QList<QString> codec_supports_keys = codec_supports.keys();
@@ -187,16 +189,20 @@ public:
     // 尽可能选取支持的音频编码与 source_path 的格式支持的音频编码相似程度最大的
     // 以避免选择到冷门或者老旧的格式
     QList<QString> exts = all_codec_supports_audio.keys();
-    QString ret = "";
     std::sort(exts.begin(), exts.end(),
               [this, all_codec_supports_audio,
                source_codec_supports_audio](QString ext1, QString ext2) {
+                // 如果没有扩展名, 则选取支持编码最多的格式
+                if (source_codec_supports_audio.isEmpty())
+                  return all_codec_supports_audio[ext1].length() >
+                         all_codec_supports_audio[ext2].length();
+
                 int ext1_overlap_count =
                     get_overlap_count(source_codec_supports_audio,
                                       all_codec_supports_audio[ext1]);
                 int ext2_overlap_count =
                     get_overlap_count(source_codec_supports_audio,
-                                      all_codec_supports_audio[ext1]);
+                                      all_codec_supports_audio[ext2]);
 
                 return qAbs(source_codec_supports_audio.length() -
                             ext1_overlap_count) <
