@@ -247,10 +247,30 @@ Item {
             for (let i = 0; i < concats.length; i++)
                 concat_str += `file '${concats[i]}'\n`;
 
+            let copy_video_str = "-c:v copy";
+            let copy_audio_str = "-c:a copy";
+
+            // 所有视频编码信息一致才直接复制视频流
+            let video_codec_param = cmd.get_video_codec_param(concats[0]);
+            for (let i = 1; i < concats.length; i++) {
+                if (cmd.get_video_codec_param(concats[i]) != video_codec_param) {
+                    copy_video_str = "";
+                    break;
+                }
+            }
+            // 所有音频编码信息一致才直接复制音频流
+            let audio_codec_param = cmd.get_audio_codec_param(concats[0]);
+            for (let i = 1; i < concats.length; i++) {
+                if (cmd.get_audio_codec_param(concats[i]) != audio_codec_param) {
+                    copy_audio_str = "";
+                    break;
+                }
+            }
+
             cmd.clean_tmp_file("concat.txt", 10);
             let concat_file_path = cmd.echo_tmp_file("concat.txt", concat_str, true);
 
-            cmd.push_ffmpeg_cmd(`ffmpeg -y -safe 0 -f concat -i "${concat_file_path}" "${out_path}"`);
+            cmd.push_ffmpeg_cmd(`ffmpeg -y -safe 0 -f concat -i "${concat_file_path}" ${copy_video_str} ${copy_audio_str} "${out_path}"`);
             cmd.exec_ffmpeg();
         }
     }

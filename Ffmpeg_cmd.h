@@ -14,6 +14,7 @@
 #include "qmap.h"
 #include "qnumeric.h"
 #include "qobject.h"
+#include "qprocess.h"
 #include "qstringview.h"
 #include "qtmetamacros.h"
 #include <QCoreApplication>
@@ -207,6 +208,20 @@ public:
     return "";
   }
 
+  Q_INVOKABLE QString get_video_codec_param(QString video_path) {
+    return QString(exec(
+        "ffprobe",
+        {"-v", "error", "-select_streams", "a:0", "-show_entries",
+         "stream=codec_name,sample_rate,channels,channel_layout", video_path}));
+  }
+
+  Q_INVOKABLE QString get_audio_codec_param(QString video_path) {
+    return QString(exec(
+        "ffprobe",
+        {"-v", "error", "-select_streams", "v:0", "-show_entries",
+         "stream=codec_name,width,height,r_frame_rate,pix_fmt", video_path}));
+  }
+
   Q_INVOKABLE QString get_extension(QString filename) {
     // 获取输入文件名的扩展名
     // 如: filename = "a.mp4"
@@ -279,15 +294,11 @@ private:
 
   Codec_info get_codec_info(const QString &path) {
     Codec_info codec_info;
-    QProcess process;
     QList<QString> args = {
         "-v",   "error", "-show_entries", "stream=codec_name,codec_type", "-of",
         "json", path};
 
-    process.start("ffprobe", args);
-    process.waitForFinished(-1);
-
-    QByteArray out = process.readAllStandardOutput();
+    QByteArray out = exec("ffprobe", args);
 
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(out, &error);
@@ -312,6 +323,13 @@ private:
     }
 
     return codec_info;
+  }
+
+  QByteArray exec(QString program, QList<QString> argv) {
+    QProcess process;
+    process.start(program, argv);
+    process.waitForFinished(-1);
+    return process.readAllStandardOutput() + process.readAllStandardError();
   }
 
   template <typename T> int get_overlap_count(QList<T> l1, QList<T> l2) {
