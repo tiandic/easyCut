@@ -14,16 +14,6 @@ Item {
         id: list_data
     }
 
-    function get_extension(filename) {
-        if (!filename)
-            return '';
-        console.debug("get_extension():", filename);
-        const idx = filename.lastIndexOf('.');
-        if (idx === -1 || idx === 0)
-            return '';
-        return filename.slice(idx + 1);
-    }
-
     ColumnLayout {
         id: input
         anchors.top: parent.top
@@ -93,7 +83,7 @@ Item {
                 save_path = save_path + '.' + cmd.get_most_suitable_out_audio_ext(in_path);
 
             let copy_codec = "";
-            if (cmd.can_copy(in_path, root.get_extension(save_path), "audio"))
+            if (cmd.can_copy(in_path, cmd.get_extension(save_path), "audio"))
                 copy_codec = "-c:a copy";
 
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vn ${copy_codec} "${save_path}"`);

@@ -270,16 +270,6 @@ Item {
         }
     }
 
-    function get_extension(filename) {
-        if (!filename)
-            return '';
-        console.debug("get_extension():", filename);
-        const idx = filename.lastIndexOf('.');
-        if (idx === -1 || idx === 0)
-            return '';
-        return filename.slice(idx + 1);
-    }
-
     Com.SavePathSelect {
         id: save_path_select
         input_video_path: videoPlay.video_path
@@ -310,7 +300,7 @@ Item {
             let crop_str = `${w}:${h}:${x}:${y}`;
 
             let copy_audio_codec = "";
-            if (cmd.can_copy(in_path, root.get_extension(out_path), "audio"))
+            if (cmd.can_copy(in_path, cmd.get_extension(out_path), "audio"))
                 copy_audio_codec = "-c:a copy";
 
             cmd.push_ffmpeg_cmd(`ffmpeg -y -i "${in_path}" -vf "crop=${crop_str}" ${copy_audio_codec} "${out_path}"`);

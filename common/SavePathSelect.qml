@@ -8,22 +8,12 @@ Item {
     property var dialog: save_path_select
     signal selected(string in_path, string out_path)
 
-    function get_extension(filename) {
-        if (!filename)
-            return '';
-        console.debug("get_extension():", filename);
-        const idx = filename.lastIndexOf('.');
-        if (idx === -1 || idx === 0)
-            return '';
-        return filename.slice(idx + 1);
-    }
-
     FileDialog {
         id: save_path_select
         title: qsTr("选择保存位置")
         fileMode: FileDialog.SaveFile
         currentFile: {
-            let ext = root.get_extension(root.input_video_path);
+            let ext = cmd.get_extension(root.input_video_path);
             if (ext !== '')
                 return "out." + ext;
             return "out.mp4";
@@ -35,8 +25,8 @@ Item {
             let file_path = cmd.cvt_file_url_to_local(root.input_video_path);
             let save_path = cmd.cvt_file_url_to_local(save_path_select.selectedFile.toString());
             if (save_path.indexOf('.') === -1)
-                save_path = save_path + '.' + root.get_extension(file_path);
-            console.debug(root.get_extension(root.input_video_path));
+                save_path = save_path + '.' + cmd.get_extension(file_path);
+            console.debug(cmd.get_extension(root.input_video_path));
             root.selected(file_path, save_path);
         }
     }

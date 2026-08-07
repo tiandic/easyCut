@@ -97,16 +97,6 @@ Item {
         return ms;
     }
 
-    function get_extension(filename) {
-        if (!filename)
-            return '';
-        console.debug("get_extension():", filename);
-        const idx = filename.lastIndexOf('.');
-        if (idx === -1 || idx === 0)
-            return '';
-        return filename.slice(idx + 1);
-    }
-
     function get_subtitle_codec(ext) {
         const extension = ext.toLowerCase().replace(/^\./, '');
 
@@ -421,13 +411,13 @@ Item {
         id: save_path_select
         input_video_path: videoPlay.video_path
         onSelected: function (in_path, out_path) {
-            let subtitle_codec = root.get_subtitle_codec(root.get_extension(out_path));
+            let subtitle_codec = root.get_subtitle_codec(cmd.get_extension(out_path));
             let copy_video_codec = "";
             let copy_audio_codec = "";
 
-            if (cmd.can_copy(in_path, root.get_extension(out_path)))
+            if (cmd.can_copy(in_path, cmd.get_extension(out_path)))
                 copy_video_codec = "-c:v copy";
-            if (cmd.can_copy(in_path, root.get_extension(out_path), "audio"))
+            if (cmd.can_copy(in_path, cmd.get_extension(out_path), "audio"))
                 copy_audio_codec = "-c:a copy";
 
             let copy_codec = `${copy_video_codec} ${copy_audio_codec}`;
